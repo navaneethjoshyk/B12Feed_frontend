@@ -3,6 +3,7 @@ import SignIn from './pages/SignIn';
 import ForgotPassword from './pages/ForgotPassword';
 import Discover from './pages/Discover';
 import ResourceDetails from './pages/ResourceDetails';
+import CheckEmail from './pages/CheckEmail';
 
 function App() {
   return (
@@ -19,6 +20,9 @@ function App() {
 
         {/* The Resource Details page */}
         <Route path="/resource/:id" element={<ResourceDetails />} />
+
+        {/* Add this line to access the page at /check-email */}
+        <Route path="/check-email" element={<CheckEmail />} />
       </Routes>
     </BrowserRouter>
   );

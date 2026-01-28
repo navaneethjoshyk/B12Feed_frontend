@@ -13,11 +13,10 @@ const Button = ({ children, onClick, variant = 'primary', className = '', type =
   const base = "font-bold transition-all duration-200 active:scale-[0.98]";
   
   const variants = {
-    // UPDATED: Uses your #058177 brand color from index.css
-    primary: "bg-brand text-white hover:bg-brand-hover shadow-lg shadow-[#058177]/20",
-    social: "bg-black text-white flex items-center justify-center gap-3 hover:bg-neutral-900",
-    outline: "border border-neutral-300 text-neutral-700 hover:bg-neutral-50"
-  };
+  primary: "bg-brand text-white hover:bg-brand-hover shadow-lg shadow-[#058177]/20",
+  social: "bg-black text-white flex items-center justify-center gap-3 hover:bg-neutral-900",
+  outline: "border border-neutral-300 hover:bg-neutral-50" 
+};
 
   return (
     <button 

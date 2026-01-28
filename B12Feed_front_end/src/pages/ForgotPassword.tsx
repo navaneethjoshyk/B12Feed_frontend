@@ -1,70 +1,65 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import Logo from '../components/Logo'; 
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   const handleReset = (e: React.FormEvent) => {
     e.preventDefault();
-    // Later, we can add the logic to tell the Backend to send an email
-    setSubmitted(true);
+    // Navigates to the success screen and passes the email address through state
+    navigate('/check-email', { state: { email } }); 
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-sm">
-        
-        {/* Back Button */}
-        <button onClick={() => window.history.back()} className="text-xs font-bold uppercase text-neutral-400 hover:text-black mb-8 transition-colors">
-          ← Back to Sign In
-        </button>
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 font-sans">
+      
+      <Logo />
 
-        <div className="border border-neutral-200 rounded-xl p-8 shadow-sm bg-white">
-          {!submitted ? (
-            <form className="space-y-6" onSubmit={handleReset}>
-              <div>
-                <h2 className="text-xl font-bold mb-2">Reset Password</h2>
-                <p className="text-sm text-neutral-500 mb-6">
-                  Enter your organization email and we'll send you a link to reset your password.
-                </p>
-              </div>
+      <div className="w-full max-w-md">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold text-neutral-800 tracking-tight">
+            Reset your password
+          </h1>
+          
+          <p className="text-neutral-500 mt-3 font-medium">
+            Don’t worry. Enter your email and we’ll send you a <br className="hidden sm:block" /> link to reset your password.
+          </p>
+        </div>
 
-              <div className="relative">
-                <label className="block text-[10px] font-bold uppercase text-neutral-400 mb-1 tracking-widest">
-                  Organization email
-                </label>
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border-b border-neutral-300 py-2 outline-none focus:border-black transition-all text-sm"
-                  placeholder="email@organization.org"
-                  required
-                />
-              </div>
+        <form className="space-y-5" onSubmit={handleReset}>
+          <div className="space-y-1.5">
+            <label className="block text-sm font-bold text-neutral-700 ml-1">
+              Email
+            </label>
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@organization.com"
+              className="w-full px-5 py-4 rounded-2xl bg-neutral-50 border border-neutral-200 outline-none focus:ring-2 focus:ring-[#058177]/20 focus:border-[#058177] transition-all"
+              required
+            />
+          </div>
 
-              <Button type="submit" variant="primary">
-                Send Reset Link
-              </Button>
-            </form>
-          ) : (
-            <div className="text-center py-4">
-              <div className="text-4xl mb-4">✉️</div>
-              <h2 className="text-xl font-bold mb-2">Check your email</h2>
-              <p className="text-sm text-neutral-500">
-                We've sent a password reset link to <br/>
-                <span className="font-bold text-black">{email}</span>
-              </p>
-              <Button 
-                variant="outline" 
-                className="mt-8" 
-                onClick={() => setSubmitted(false)}
-              >
-                Try a different email
-              </Button>
-            </div>
-          )}
+          <Button 
+            type="submit" 
+            variant="primary" 
+            className="w-full py-4 rounded-2xl font-bold text-lg mt-4"
+          >
+            Reset password
+          </Button>
+        </form>
+
+        <div className="text-center mt-8">
+          <span 
+            onClick={() => navigate('/login')} 
+            className="text-[#058177] font-bold cursor-pointer hover:underline text-sm"
+          >
+            Back to sign in
+          </span>
         </div>
       </div>
     </div>
