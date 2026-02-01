@@ -32,7 +32,7 @@ const CheckEmail: React.FC<CheckEmailProps> = ({ email = "your email" }) => {
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 font-sans">
       <div className="w-full max-w-md text-center flex flex-col items-center">
         
-        {/* Success Icon from design */}
+        {/* Success Icon  */}
         <div className="w-20 h-20 bg-[#E6F6F4] rounded-full flex items-center justify-center mb-8">
           <div className="w-10 h-10 rounded-full border-4 border-[#058177] flex items-center justify-center">
             <svg width="20" height="15" viewBox="0 0 20 15" fill="none">
