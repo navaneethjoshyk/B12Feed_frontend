@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { SECRET } from '../config/config';
+import { SECRET } from '../config/config.js';
 
 const authenticateJWT = async (request, response, next) => {
     const authHeader = request.headers.authorization;
