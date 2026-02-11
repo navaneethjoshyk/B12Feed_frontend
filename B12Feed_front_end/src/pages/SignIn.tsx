@@ -3,24 +3,27 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
 import Input from "../components/Input";
+// Import the login function from your api file
+import { login } from "../api/api"; 
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
-  
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  // New state for API feedback
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let hasError = false;
+    setApiError(""); // Reset API errors on new attempt
 
     if (!emailRegex.test(email)) {
       setEmailError("Enter a valid email address.");
@@ -33,7 +36,23 @@ const SignIn: React.FC = () => {
     }
 
     if (!hasError) {
-      navigate("/discover");
+      setLoading(true);
+      try {
+        // --- INTEGRATED API CALL ---
+        const response = await login({ email, password });
+        
+        // If successful, store the token (optional) and navigate
+        if (response.sign) {
+          localStorage.setItem("token", response.sign);
+        }
+        
+        navigate("/discover");
+      } catch (err: any) {
+        // Handle server errors (e.g., 401 Unauthorized)
+        setApiError(err.message || "An unexpected error occurred. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -52,7 +71,15 @@ const SignIn: React.FC = () => {
         </div>
 
         <form className="space-y-5" onSubmit={handleSignIn}>
+          {/* Display general API error if one exists */}
+          {apiError && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg text-center font-medium">
+              {apiError}
+            </div>
+          )}
+
           <Input
+            name="email"
             label="Email"
             type="email"
             value={email}
@@ -65,6 +92,7 @@ const SignIn: React.FC = () => {
           />
 
           <Input
+            name="password"
             label="Password"
             type="password"
             placeholder="Enter your password"
@@ -72,22 +100,22 @@ const SignIn: React.FC = () => {
             error={passwordError}
             onChange={(e) => {
               setPassword(e.target.value);
-              if (passwordError) setPasswordError(""); 
+              if (passwordError) setPasswordError("");
             }}
           />
 
           <div className="flex items-center justify-between px-1">
             <label className="flex items-center gap-2 cursor-pointer group">
-              <input 
-                type="checkbox" 
-                className="w-4 h-4 rounded border-neutral-300 accent-[#058177]" 
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded border-neutral-300 accent-[#058177]"
               />
               <span className="text-sm font-medium text-neutral-600 group-hover:text-black transition-colors">
                 Remember me
               </span>
             </label>
-            
-            <span 
+
+            <span
               onClick={() => navigate("/forgot-password")}
               className="text-sm font-bold text-[#058177] cursor-pointer hover:underline"
             >
@@ -98,9 +126,9 @@ const SignIn: React.FC = () => {
           <Button
             type="submit"
             variant="primary"
-            className="w-full py-4 rounded-2xl font-bold text-lg mt-4"
+            className={`w-full py-4 rounded-2xl font-bold text-lg mt-4 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            Sign in
+            {loading ? "Signing in..." : "Sign in"}
           </Button>
         </form>
 
