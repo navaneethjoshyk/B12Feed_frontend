@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
 import Input from "../components/Input";
+// Import the signUp function from your api file
+import { signUp } from "../api/api";
 
 const RegisterJoin: React.FC = () => {
   const navigate = useNavigate();
@@ -21,18 +23,37 @@ const RegisterJoin: React.FC = () => {
     password: "",
   });
 
+  // API State
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError(""); // Clear error when user types
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
     
-    // Logic to handle account creation
-    console.log("Account Created for:", formData);
+    try {
+      // Logic to handle account creation via API
+      // Your backend currently expects (email, password)
+      await signUp({ 
+        email: formData.email, 
+        password: formData.password 
+      });
 
-    // Redirect user to the dashboard after successful join
-    navigate("/discover"); 
+      console.log("Account Created for:", formData);
+
+      // Redirect user to the dashboard after successful join
+      navigate("/discover"); 
+    } catch (err: any) {
+      setError(err.message || "Failed to create account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,6 +75,13 @@ const RegisterJoin: React.FC = () => {
         </div>
 
         <form className="space-y-5 text-left" onSubmit={handleSubmit}>
+          {/* Error Message Display */}
+          {error && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-xl text-center font-medium border border-red-100">
+              {error}
+            </div>
+          )}
+
           {/* Row: First and Last Name */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
@@ -97,9 +125,9 @@ const RegisterJoin: React.FC = () => {
           <Button
             type="submit"
             variant="primary"
-            className="w-full py-4 rounded-2xl font-bold text-lg mt-6"
+            className={`w-full py-4 rounded-2xl font-bold text-lg mt-6 ${loading ? "opacity-50 pointer-events-none" : ""}`}
           >
-            Create account
+            {loading ? "Creating account..." : "Create account"}
           </Button>
         </form>
       </div>

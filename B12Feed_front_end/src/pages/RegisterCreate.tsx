@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
 import Input from "../components/Input";
+// Import the signUp function from your api file
+import { signUp } from "../api/api";
 
 const RegisterCreate: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +19,10 @@ const RegisterCreate: React.FC = () => {
     orgAddress: "",
     phone: "",
   });
+
+  // API State
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   // Function to format phone: (XXX) XXX-XXXX
   const formatPhoneNumber = (value: string) => {
@@ -33,20 +39,38 @@ const RegisterCreate: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     
+    // Clear error when user types
+    if (apiError) setApiError("");
+
     // Apply formatting if the field is 'phone'
     const finalValue = name === "phone" ? formatPhoneNumber(value) : value;
     
     setFormData({ ...formData, [name]: finalValue });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setApiError("");
     
-    // In a real app, you would send formData to your backend API here
-    console.log("Submitting:", formData);
-    
-    // After the API call is successful, redirect to the success screen
-    navigate("/signup/success"); 
+    try {
+      // --- INTEGRATED API CALL ---
+      // Currently, your backend service takes email and password
+      await signUp({ 
+        email: formData.email, 
+        password: formData.password 
+      });
+
+      console.log("Submitting:", formData);
+      
+      // After the API call is successful, redirect to the success screen
+      navigate("/signup/success"); 
+    } catch (err: any) {
+      // Handle server errors (e.g., account already exists)
+      setApiError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,6 +88,13 @@ const RegisterCreate: React.FC = () => {
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
+          {/* API Error Message Display */}
+          {apiError && (
+            <div className="p-4 text-sm text-red-600 bg-red-50 rounded-2xl text-center font-medium border border-red-100">
+              {apiError}
+            </div>
+          )}
+
           {/* First and Last Name Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
@@ -136,9 +167,9 @@ const RegisterCreate: React.FC = () => {
           <Button
             type="submit"
             variant="primary"
-            className="w-full py-4 rounded-2xl font-bold text-lg mt-6"
+            className={`w-full py-4 rounded-2xl font-bold text-lg mt-6 ${loading ? "opacity-50 pointer-events-none" : ""}`}
           >
-            Submit
+            {loading ? "Processing..." : "Submit"}
           </Button>
         </form>
       </div>

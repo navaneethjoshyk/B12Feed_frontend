@@ -8,6 +8,7 @@ import RegisterCreate from './pages/RegisterCreate';
 import RegisterJoin from './pages/RegisterJoin';
 import RegisterChoice from './pages/RegisterChoice';
 import Success from './pages/Success';
+import ShareFood from './pages/ShareFood';
 
 function App() {
   return (
@@ -32,6 +33,9 @@ function App() {
 
         {/* The discover page */}
         <Route path="/discover" element={<Discover />} />
+
+        {/* The share food page */}
+        <Route path="/share-food" element={<ShareFood />} />
 
         {/* The Resource Details page */}
         <Route path="/resource/:id" element={<ResourceDetails />} />

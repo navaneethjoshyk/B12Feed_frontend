@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-  :root {
+:root {
   --color-brand: #058177;
   --color-brand-hover: #046b62;
   --color-brand-soft: #e9f6f3;
@@ -11,13 +11,41 @@
   --color-border-soft: #eef2f1;
 }
 
- @theme {
+@theme {
   --color-brand: #058177;
   --color-brand-hover: #046b63;
+  --font-sans: Arial, Helvetica, sans-serif;
 }
 
 @layer base {
   body {
+    /* Sets Arial as the default for the entire document */
+    font-family: Arial, Helvetica, sans-serif;
     @apply bg-white text-neutral-900 antialiased;
+  }
+
+  
+  
+  input, textarea, select, button {
+    font-family: Arial, Helvetica, sans-serif !important;
+  }
+
+  /* Custom Animations for the Modal */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes modalScale {
+    from { transform: scale(0.9) translateY(10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  .animate-modalScale {
+    animation: modalScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 }
