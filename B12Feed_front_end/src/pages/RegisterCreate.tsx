@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { newUserSignup } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
@@ -39,14 +40,17 @@ const RegisterCreate: React.FC = () => {
     setFormData({ ...formData, [name]: finalValue });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // In a real app, you would send formData to your backend API here
     console.log("Submitting:", formData);
-    
+
+    const registered = await newUserSignup(formData)
+
     // After the API call is successful, redirect to the success screen
-    navigate("/signup/success"); 
+    if(registered === 200) navigate("/signup/success");
+    
   };
 
   return (
