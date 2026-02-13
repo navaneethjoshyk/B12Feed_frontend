@@ -20,11 +20,11 @@ const Discover: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   
-  // Changed to null so nothing is selected by default
+  // State for filters: null means nothing is selected by default
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   const handleFilterClick = (label: string) => {
-    // If clicking the same filter, deselect it. Otherwise, select the new one.
+    // Toggle logic: click same filter to deselect
     setActiveFilter(activeFilter === label ? null : label);
   };
 
@@ -37,15 +37,29 @@ const Discover: React.FC = () => {
         </div>
 
         <nav className="flex-1 space-y-1">
-          <SidebarLink icon={<FiGrid />} label="Discover" active onClick={() => navigate('/discover')} />
-          <SidebarLink icon={<FiShoppingBag />} label="My Claims" onClick={() => navigate('/my-claims')} />
-          <SidebarLink icon={<FiLayers />} label="My Posting" onClick={() => navigate('/my-resources')} />
+          <SidebarLink 
+            icon={<FiGrid />} 
+            label="Discover" 
+            active 
+            onClick={() => navigate('/discover')} 
+          />
+          <SidebarLink 
+            icon={<FiShoppingBag />} 
+            label="My Claims" 
+            onClick={() => navigate('/my-claims')} 
+          />
+          {/* LINKED: Connects to your My Postings page */}
+          <SidebarLink 
+            icon={<FiLayers />} 
+            label="My Postings" 
+            onClick={() => navigate('/my-postings')} 
+          />
         </nav>
 
         <div className="pt-6 space-y-4">
           <button 
             onClick={() => navigate('/share-food')}
-            className="w-full bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white py-4 px-5 rounded-xl flex items-center gap-3 font-semibold shadow-sm transition-colors"
+            className="w-full bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white py-4 px-5 rounded-xl flex items-center gap-3 font-semibold shadow-sm transition-all active:scale-95"
           >
             <FiPlus size={18} />
             Post Food
@@ -114,7 +128,7 @@ const Discover: React.FC = () => {
           </div>
 
           <section>
-            {/* MOVING HEADING ABOVE FILTERS */}
+            {/* HEADING ABOVE FILTERS */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Available food</h2>
               <button className="flex items-center gap-2 text-sm font-semibold border border-[var(--color-border-soft)] rounded-full px-4 py-2 hover:bg-[var(--color-brand-softer)]">
@@ -123,7 +137,7 @@ const Discover: React.FC = () => {
               </button>
             </div>
 
-            {/* FILTERS NOW INSIDE SECTION OR BELOW HEADING */}
+            {/* NEUTRAL FILTERS: Selected only when clicked */}
             <div className="flex gap-2 overflow-x-auto mb-8 no-scrollbar">
               <FilterPill 
                 label="Near me" 
@@ -137,8 +151,8 @@ const Discover: React.FC = () => {
               />
               <FilterPill 
                 label="Filters" 
-                icon={<FiChevronDown size={16} className={activeFilter === "Filters" ? "text-white" : "text-gray-400"} />}
                 isActive={activeFilter === "Filters"}
+                icon={<FiChevronDown size={16} className={activeFilter === "Filters" ? "text-white" : "text-gray-400"} />}
                 onClick={() => handleFilterClick("Filters")}
               />
             </div>
@@ -164,9 +178,7 @@ const Discover: React.FC = () => {
 
                   <div className="p-5 pt-3">
                     <div className="flex justify-between mb-1">
-                      <h3 className="font-bold text-lg">
-                        Assorted Fruits & Veg
-                      </h3>
+                      <h3 className="font-bold text-lg">Assorted Fruits & Veg</h3>
                       <UrgencyPill urgent={i === 3} />
                     </div>
 
@@ -176,12 +188,8 @@ const Discover: React.FC = () => {
 
                     <div className="flex justify-between items-center border-t border-[var(--color-border-soft)] pt-4">
                       <div className="text-xs">
-                        <p className="font-semibold text-neutral-400 uppercase tracking-wide">
-                          LOCATION
-                        </p>
-                        <p className="text-neutral-700 font-medium">
-                          Downtown Food Hub
-                        </p>
+                        <p className="font-semibold text-neutral-400 uppercase tracking-wide">LOCATION</p>
+                        <p className="text-neutral-700 font-medium">Downtown Food Hub</p>
                       </div>
 
                       <button className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white px-5 py-2 rounded-xl text-sm font-semibold transition-colors">
@@ -270,13 +278,9 @@ const StatusPill = ({ type }: { type: "available" | "pending" }) => (
 
 const UrgencyPill = ({ urgent }: { urgent: boolean }) =>
   urgent ? (
-    <span className="bg-red-50 text-red-600 text-[10px] font-bold px-2 py-1 rounded-lg">
-      4H LEFT
-    </span>
+    <span className="bg-red-50 text-red-600 text-[10px] font-bold px-2 py-1 rounded-lg">4H LEFT</span>
   ) : (
-    <span className="bg-neutral-100 text-neutral-600 text-[10px] font-bold px-2 py-1 rounded-lg">
-      23H LEFT
-    </span>
+    <span className="bg-neutral-100 text-neutral-600 text-[10px] font-bold px-2 py-1 rounded-lg">23H LEFT</span>
   );
 
 export default Discover;
