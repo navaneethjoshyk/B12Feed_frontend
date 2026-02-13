@@ -10,7 +10,18 @@ const approvalEmail = async (toEmail, firstName, lastName) => {
   });
 }
 
+const needApproval = async (fName, lName, orgName) => {
+  // send mail to super admin to approve the new org
+  return await transporter.sendMail({
+    from: "test@example.com",
+    to: "lin.chenxi14@gmail.com",
+    subject: "New Organization will need approval",
+    text: `Please review ${fName} ${lName}'s ${orgName}`
+  })
+}
+
 
 export {
-    approvalEmail
+    approvalEmail,
+    needApproval
 };
