@@ -66,15 +66,6 @@ export const signUp = async (userData: UserCredentials): Promise<string> => {
     }
 };
 
-export const login = async (credentials: UserCredentials): Promise<AuthResponse> => {
-    try {
-        const { data } = await apiClient.post<AuthResponse>('/login', credentials);
-        return data;
-    } catch (error: any) {
-        const message = error.response?.data?.message || 'Login failed';
-        throw new Error(message);
-    }
-};
 
 /**
  * Sends food post data to the backend. 
@@ -108,6 +99,8 @@ export const postFood = async (foodData: FoodPostData): Promise<any> => {
     } catch (error: any) {
         const message = error.response?.data?.message || 'Failed to post food';
         throw new Error(message);
+    }
+}
 /**
  * Sends user credentials to create a new account
  */
@@ -131,13 +124,4 @@ export const login = async (credentials: UserCredentials): Promise<number> => {
     } catch (error) {
         throw new Error('Login failed');
     }
-};
-
-
-export default {
-    signUp,
-    login,
-    postFood
-    newUserSignup,
-    login
 };

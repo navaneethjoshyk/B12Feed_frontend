@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// User with Organization reference
 const userSchema = new mongoose.Schema({
     first_name: String,
     last_name: String,
@@ -8,6 +9,7 @@ const userSchema = new mongoose.Schema({
     userOrg: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization'}
 })
 
+// Organization properties with orgAdmin reference and orgUser reference
 const organizationSchema = new mongoose.Schema({
     name: String,
     address: String,
@@ -28,10 +30,31 @@ const organizationSchema = new mongoose.Schema({
     orgUser: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}], // After onboarding all the other Users will be saved her.
 })
 
+// Resource properties with organization reference
+const resourcePost = new mongoose.Schema({
+    organization_id: { type: mongooseSchema.Types.ObjectId, ref: 'Organization'},
+    user_id: {type: mongooseSchema.Types.ObjectId, ref: 'User'},
+    category: String,
+    category_note: String,
+    quantity: Number,
+    quantity_note: String,
+    condition: String,
+    pickup_window_start: Date,
+    location: String,
+    handling_requirement: String,
+    resource_expiry: Date,
+    urgency_indicator: String,
+    created_at: Date,
+    updated_at: Date,
+    status: String,
+    pickup_window_end: Date,
+})
+
 const User = mongoose.model('User', userSchema);
 const Organization = mongoose.model('Organization', organizationSchema);
 
 export {
     User,
-    Organization
+    Organization,
+    resourcePost
 };

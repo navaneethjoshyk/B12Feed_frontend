@@ -1,11 +1,30 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store/index.ts';
+import React, { useEffect, useState } from 'react';
+import { useLocation, Navigate } from 'react-router-dom';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
+  const [auth, setAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const test = async() => {
+      const authResponse = await fetch("http://localhost:3001/onboarding", {
+        method: "GET",
+        credentials: "include"
+      });
+      console.log(authResponse.ok)
+      
+      if (!authResponse.ok) {
+        setAuth(true);
+        setLoading(false);
+      } else {
+        setAuth(false)
+        setLoading(false);
+      }
+      console.log("This ran")
+    }
+    test();
+  }, [])
+
 
   // 1. LOADING LOGIC
   if (loading) {
@@ -18,7 +37,7 @@ const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) 
   }
 
   // 2. AUTHENTICATION CHECK 
-  if (isAuthenticated === false) {
+  if (auth) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
