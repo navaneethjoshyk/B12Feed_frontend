@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-// --- 1. UPDATED TYPES ---
-export interface AuthResponse {
-    message: string;
-    sign?: string; 
-}
+// --- 1. TYPES & INTERFACES ---
+// export interface AuthResponse {
+//     message: string;
+//     sign?: string; // This is the JWT/Auth token
+// }
 
 export interface UserCredentials {
     email: string;
@@ -35,11 +35,23 @@ export interface FoodPostData {
 }
 
 // --- 2. AXIOS INSTANCE ---
+export interface newUserSignup {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orgName: string;
+    orgAddress: string;
+    phone: string;
+}
+
+// --- 2. AXIOS INSTANCE CONFIGURATION ---
 const apiClient = axios.create({
-    baseURL: 'http://localhost:5000',
+    baseURL: 'http://localhost:3001',
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true
 });
 
 // --- 3. API SERVICE FUNCTIONS ---
@@ -96,11 +108,36 @@ export const postFood = async (foodData: FoodPostData): Promise<any> => {
     } catch (error: any) {
         const message = error.response?.data?.message || 'Failed to post food';
         throw new Error(message);
+/**
+ * Sends user credentials to create a new account
+ */
+export const newUserSignup = async (credentials: newUserSignup): Promise<number> => {
+    try {
+        const { status } = await apiClient.post<string>('users/signup', credentials);
+        return status;
+    } catch (error) {
+        throw new Error('Sign up failed');
     }
 };
+
+/**
+ * Sends user credentials to authenticate and receive a token
+ * Note: Changed to .post because sending passwords via .get is insecure
+ */
+export const login = async (credentials: UserCredentials): Promise<number> => {
+    try {
+        const { status } = await apiClient.post<string>('users/auth', credentials);
+        return status;
+    } catch (error) {
+        throw new Error('Login failed');
+    }
+};
+
 
 export default {
     signUp,
     login,
     postFood
+    newUserSignup,
+    login
 };

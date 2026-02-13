@@ -20,7 +20,6 @@ const SignIn: React.FC = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let hasError = false;
     setApiError(""); // Reset API errors on new attempt
@@ -39,14 +38,9 @@ const SignIn: React.FC = () => {
       setLoading(true);
       try {
         // --- INTEGRATED API CALL ---
-        const response = await login({ email, password });
-        
-        // If successful, store the token (optional) and navigate
-        if (response.sign) {
-          localStorage.setItem("token", response.sign);
-        }
-        
-        navigate("/discover");
+        const signedIn = await login({ email, password });
+        // If successful, navigate to discovery
+        if(signedIn) navigate('/discover');
       } catch (err: any) {
         // Handle server errors (e.g., 401 Unauthorized)
         setApiError(err.message || "An unexpected error occurred. Please try again.");

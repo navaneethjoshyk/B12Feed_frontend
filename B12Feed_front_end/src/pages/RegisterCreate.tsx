@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { newUserSignup } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
@@ -53,24 +54,14 @@ const RegisterCreate: React.FC = () => {
     setLoading(true);
     setApiError("");
     
-    try {
-      // --- INTEGRATED API CALL ---
-      // Currently, your backend service takes email and password
-      await signUp({ 
-        email: formData.email, 
-        password: formData.password 
-      });
+    // In a real app, you would send formData to your backend API here
+    console.log("Submitting:", formData);
 
-      console.log("Submitting:", formData);
-      
-      // After the API call is successful, redirect to the success screen
-      navigate("/signup/success"); 
-    } catch (err: any) {
-      // Handle server errors (e.g., account already exists)
-      setApiError(err.message || "Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    const registered = await newUserSignup(formData)
+
+    // After the API call is successful, redirect to the success screen
+    if(registered === 200) navigate("/signup/success");
+    
   };
 
   return (
