@@ -66,15 +66,6 @@ export const signUp = async (userData: UserCredentials): Promise<string> => {
     }
 };
 
-export const login = async (credentials: UserCredentials): Promise<AuthResponse> => {
-    try {
-        const { data } = await apiClient.post<AuthResponse>('/login', credentials);
-        return data;
-    } catch (error: any) {
-        const message = error.response?.data?.message || 'Login failed';
-        throw new Error(message);
-    }
-};
 
 /**
  * Sends food post data to the backend. 
@@ -82,32 +73,33 @@ export const login = async (credentials: UserCredentials): Promise<AuthResponse>
  */
 export const postFood = async (foodData: FoodPostData): Promise<any> => {
     try {
-        const formData = new FormData();
-        
-        // Append all standard fields
-        formData.append('title', foodData.title);
-        formData.append('category', foodData.category);
-        formData.append('description', foodData.description);
-        formData.append('quantity', foodData.quantity);
-        formData.append('unit', foodData.unit);
-        formData.append('condition', foodData.condition);
-        formData.append('pickupAddress', foodData.pickupAddress);
-        formData.append('expiryDate', foodData.expiryDate);
-        formData.append('urgency', foodData.urgency);
-        formData.append('pickupWindow', JSON.stringify(foodData.pickupWindow));
-
+        // const formData = new FormData();
+        // // Append all standard fields
+        // formData.append('title', foodData.title);
+        // formData.append('category', foodData.category);
+        // formData.append('description', foodData.description);
+        // formData.append('quantity', foodData.quantity);
+        // formData.append('unit', foodData.unit);
+        // formData.append('condition', foodData.condition);
+        // formData.append('pickupAddress', foodData.pickupAddress);
+        // formData.append('expiryDate', foodData.expiryDate);
+        // formData.append('urgency', foodData.urgency);
+        // formData.append('pickupWindow', JSON.stringify(foodData.pickupWindow));
+        // console.log(formData)
         // Append image if it exists
-        if (foodData.image) {
-            formData.append('image', foodData.image);
-        }
-
-        const { data } = await apiClient.post('/api/resources', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+        // if (foodData.image) {
+        //     formData.append('image', foodData.image);
+        // }
+        console.log(foodData)
+        const { status } = await apiClient.post('/api/resourcePost', foodData, {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
-        return data;
+        return status;
     } catch (error: any) {
         const message = error.response?.data?.message || 'Failed to post food';
         throw new Error(message);
+    }
+}
 /**
  * Sends user credentials to create a new account
  */
@@ -124,20 +116,11 @@ export const newUserSignup = async (credentials: newUserSignup): Promise<number>
  * Sends user credentials to authenticate and receive a token
  * Note: Changed to .post because sending passwords via .get is insecure
  */
-export const login = async (credentials: UserCredentials): Promise<number> => {
+export const login = async (credentials: UserCredentials): Promise<any> => {
     try {
-        const { status } = await apiClient.post<string>('users/auth', credentials);
-        return status;
+        const response = await apiClient.post<string>('users/auth', credentials);
+        return response;
     } catch (error) {
         throw new Error('Login failed');
     }
-};
-
-
-export default {
-    signUp,
-    login,
-    postFood
-    newUserSignup,
-    login
 };

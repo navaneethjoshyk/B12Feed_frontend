@@ -1,8 +1,9 @@
 import express from 'express';
-import { onboarding } from '../controllers/orgController.js';
+import { userOrg, postResource } from '../controllers/orgController.js';
 
 const router = express.Router();
 
-router.post('/', onboarding);
+router.get('/', userOrg);
+router.post('/resourcePost', postResource);
 
 export default router;

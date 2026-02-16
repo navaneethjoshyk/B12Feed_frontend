@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
 import Input from "../components/Input";
-// Import the signUp function from your api file
-import { signUp } from "../api/api";
 
 const RegisterCreate: React.FC = () => {
   const navigate = useNavigate();

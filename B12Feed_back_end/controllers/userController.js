@@ -12,7 +12,7 @@ const userSignUp = async (request, response) => {
     try {
         // Add User in DB
         await registerUserOrg(fName, lName, email, password, orgName, address, pNumber);
-        await needApproval()
+        await needApproval(fName, lName, orgName)
         response.status(200).json({
             message: "User Registered successfully"
         });

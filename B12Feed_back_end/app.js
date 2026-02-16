@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { urlencoded } from 'express';
 import connectDB from './config/db.js';
 import authenticateJWT from './middlewares/authenticate.js';
 import cors from 'cors';
@@ -12,14 +12,16 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true
 }));
-app.use(express.json())
 
-app.use('/users', user);
-
-app.use('/onboarding', authenticateJWT,  org)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
 
 app.get('/', async (request, response) => {
     response.json("hello")
 })
+
+app.use('/users', user);
+
+app.use('/api', authenticateJWT, org);
 
 export default app;
