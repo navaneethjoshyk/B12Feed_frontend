@@ -6,12 +6,11 @@ const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) 
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const test = async() => {
-      const authResponse = await fetch("http://localhost:3001/onboarding", {
+    const response = async() => {
+      const authResponse = await fetch("http://localhost:3001/api", {
         method: "GET",
         credentials: "include"
       });
-      console.log(authResponse.ok)
       
       if (!authResponse.ok) {
         setAuth(true);
@@ -20,9 +19,9 @@ const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) 
         setAuth(false)
         setLoading(false);
       }
-      console.log("This ran")
+
     }
-    test();
+    response();
   }, [])
 
 

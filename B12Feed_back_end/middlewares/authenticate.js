@@ -9,17 +9,12 @@ const authenticateJWT = async (request, response, next) => {
         })
     } else {
         const token = authHeader.split("=")[1];
-
         try {
             const decoded = jwt.verify(token, SECRET)
             if(decoded !== "invalid token") {
-                response.status(200).json({
-                    message: "Verified User"
-                })
+                request.user = decoded;
             } else {
-                response.status(400).json({
-                    message: "Not Verified"
-                })
+                request.user = null;
             }
             
         } catch (err) {

@@ -1,14 +1,15 @@
-import { User, Organization } from '../models/dbSchema.js';
+import { User, Organization, ResourcePost } from '../models/dbSchema.js';
 
 // Load the User with it's Organization
-const findUserOrg = async (email) => {
-    return await User.findOne({
+const findUserOrg = (email) => {
+    const user = User.findOne({
         email: email
     }).populate('userOrg');
+    return user.userOrg;
 }
 
 // Load the Org
-const updateOrg = async (id, form) => {
+const updateOrg = (id, form) => {
     const {
         name,
         address,
@@ -26,10 +27,10 @@ const updateOrg = async (id, form) => {
         can_you_receive_prepared_food
     } = form; // The variable name will change due to front end
 
-    const ident = id;
+    const identification = id;
 
     const orgInfo = User.findOneAndUpdate({
-        _id: ident
+        _id: identification
     }, {
         name: name,
         address: address,
@@ -50,7 +51,50 @@ const updateOrg = async (id, form) => {
     return orgInfo;
 }
 
+// Posting Resources
+const resourcePost = async (user, resourceForm,) => {
+    const {_id, userOrg} = user;
+    const {
+        title,
+        category,
+        description,
+        quantity,
+        unit,
+        condition,
+        pickupWindow,
+        pickupAddress,
+        expiryDate,
+        urgency,
+        image,
+        handling
+    } = resourceForm;
+    
+    if(!resourceForm) return null;
+
+    const resourcePost = await ResourcePost.insertOne({
+        organization_id: userOrg,
+        user_id: _id,
+        title: title,
+        category: category,
+        quantity: quantity,
+        unit: unit,
+        condition: condition,
+        pickup_window_start: pickupWindow.from,
+        pickup_window_end: pickupWindow.to,
+        location: pickupAddress,
+        description: description,
+        resource_expiry: expiryDate,
+        urgency_indicator: urgency,
+        handling_requirement: handling,
+        created_at: new Date(),
+        updated_at: new Date(),
+    });
+    
+    return resourcePost;
+}
+
 export {
     findUserOrg,
-    updateOrg
+    updateOrg,
+    resourcePost
 }

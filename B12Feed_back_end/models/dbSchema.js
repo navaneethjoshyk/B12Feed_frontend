@@ -31,15 +31,20 @@ const organizationSchema = new mongoose.Schema({
 })
 
 // Resource properties with organization reference
-const resourcePost = new mongoose.Schema({
-    organization_id: { type: mongooseSchema.Types.ObjectId, ref: 'Organization'},
-    user_id: {type: mongooseSchema.Types.ObjectId, ref: 'User'},
+const resourcePostSchema = new mongoose.Schema({
+    organization_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization'},
+    user_id: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    title: String,
     category: String,
-    category_note: String,
+    description: String,
     quantity: Number,
-    quantity_note: String,
+    unit: {
+        type: String,
+        enum: ['crate', 'boxes', 'bags', 'portions', 'kg', 'lbs'],
+        required: true
+    },
     condition: String,
-    pickup_window_start: Date,
+    pickup_window_start: String,
     location: String,
     handling_requirement: String,
     resource_expiry: Date,
@@ -47,14 +52,24 @@ const resourcePost = new mongoose.Schema({
     created_at: Date,
     updated_at: Date,
     status: String,
-    pickup_window_end: Date,
+    pickup_window_end: String,
+    resource_image: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ResourceImage'}]
+})
+
+const resourceImageSchema = new mongoose.Schema({
+    resource_post_id: { type: mongoose.Schema.Types.ObjectId, ref: 'ResourcePost'},
+    image: [String],
+    image_description: String
 })
 
 const User = mongoose.model('User', userSchema);
 const Organization = mongoose.model('Organization', organizationSchema);
+const ResourcePost = mongoose.model('ResourcePost', resourcePostSchema);
+const ResourceImage = mongoose.model('ResourceImage', resourceImageSchema);
 
 export {
     User,
     Organization,
-    resourcePost
+    ResourcePost,
+    ResourceImage
 };
