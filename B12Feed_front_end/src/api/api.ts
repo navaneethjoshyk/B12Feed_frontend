@@ -34,6 +34,11 @@ export interface FoodPostData {
     image?: File | null; 
 }
 
+// Claim food status
+interface claimFoodStatus {
+    status: string;
+}
+
 // --- 2. AXIOS INSTANCE ---
 export interface newUserSignup {
     firstName: string;
@@ -124,3 +129,17 @@ export const login = async (credentials: UserCredentials): Promise<any> => {
         throw new Error('Login failed');
     }
 };
+
+export const claimResource = async(id: string) => {
+    try {
+        console.log(id)
+        const response = await apiClient.post<string>('api/claimResource', {id: id}, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        console.log(response)
+        return response;
+    } catch(error) {
+        throw new Error('Failed to claim')
+    }
+}

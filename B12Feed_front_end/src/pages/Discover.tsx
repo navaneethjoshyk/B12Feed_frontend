@@ -159,7 +159,7 @@ const Discover: React.FC = () => {
 
             {/* CARDS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
+              {["69951e3da5d23ae9d12c4103", 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
                   onClick={() => navigate(`/resource/${i}`)}
@@ -170,7 +170,7 @@ const Discover: React.FC = () => {
                       <StatusPill type={i === 2 ? "pending" : "available"} />
                     </div>
                     <img 
-                      src={`https://picsum.photos/seed/${i + 10}/600/400`} 
+                      src={`https://picsum.photos/seed/${i + "10"}/600/400`} 
                       alt="Food" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />

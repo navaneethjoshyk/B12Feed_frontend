@@ -53,7 +53,8 @@ const resourcePostSchema = new mongoose.Schema({
     updated_at: Date,
     status: String,
     pickup_window_end: String,
-    resource_image: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ResourceImage'}]
+    resource_image: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ResourceImage'}],
+    claim_status_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ClaimedStatus'}]
 })
 
 const resourceImageSchema = new mongoose.Schema({
@@ -62,14 +63,31 @@ const resourceImageSchema = new mongoose.Schema({
     image_description: String
 })
 
+// Claimed food Status
+const claimStatusSchema = new mongoose.Schema({
+    status: {
+        type: String,
+        enum: ['pending pickup', 'completed', 'expired', 'failed pickup'],
+        required: true
+    },
+    resource_post_id: { type: mongoose.Schema.Types.ObjectId, ref: 'ResourcePost' },
+    organization_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' },
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    claimed_date: Date,
+    expired_date: Date,
+    pickup_date: Date
+})
+
 const User = mongoose.model('User', userSchema);
 const Organization = mongoose.model('Organization', organizationSchema);
 const ResourcePost = mongoose.model('ResourcePost', resourcePostSchema);
 const ResourceImage = mongoose.model('ResourceImage', resourceImageSchema);
+const ClaimStatus = mongoose.model('ClaimedStatus', claimStatusSchema);
 
 export {
     User,
     Organization,
     ResourcePost,
-    ResourceImage
+    ResourceImage,
+    ClaimStatus
 };

@@ -1,9 +1,15 @@
 import React from 'react';
+import { claimResource } from '../api/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiShare2, FiClock, FiMapPin, FiArrowRight, FiBell, FiPlus, FiHome, FiLayers, FiMessageSquare, FiUser } from 'react-icons/fi';
 
 const ResourceDetails: React.FC = () => {
   const navigate = useNavigate();
+  const id = useParams<{id: string}>();
+  
+  const claimResourcePost = async() => {
+    if(id.id) return await claimResource(id.id);
+  }
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-white overflow-hidden">
@@ -58,7 +64,7 @@ const ResourceDetails: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                <button className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-black/10">Claim Now <FiArrowRight /></button>
+                <button className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-black/10" onClick={claimResourcePost}>Claim Now <FiArrowRight /></button>
                 <button className="w-full border-2 border-neutral-100 py-5 rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2">Message Organization</button>
               </div>
             </div>

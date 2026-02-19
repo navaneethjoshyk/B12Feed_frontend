@@ -1,4 +1,4 @@
-import { findUserOrg, resourcePost, updateOrg } from "../services/orgService.js"
+import { findUserOrg, resourcePost, updateOrg, claimResource } from "../services/orgService.js"
 
 const userOrg = async(request, response, next) => {
     if(!request.user.email) response.json(400).json({
@@ -23,7 +23,15 @@ const postResource = async(request, response, next) => {
     })
 }
 
+const postClaimStatus = async(request, response, next) => {
+    console.log(request.body.id)
+    await claimResource(request.body.id, request.user)
+    response.status(200);
+}
+
 export {
     userOrg,
-    postResource
+    postResource,
+    claimResource,
+    postClaimStatus
 }
