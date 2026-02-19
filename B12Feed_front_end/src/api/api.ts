@@ -1,11 +1,6 @@
 import axios from 'axios';
 
 // --- 1. TYPES & INTERFACES ---
-// export interface AuthResponse {
-//     message: string;
-//     sign?: string; // This is the JWT/Auth token
-// }
-
 export interface UserCredentials {
     email: string;
     password?: string;
@@ -16,8 +11,8 @@ export interface UserCredentials {
     phone?: string;
 }
 
-// Interface for the Share Food form
 export interface FoodPostData {
+    id?: number;
     title: string;
     category: string;
     description: string;
@@ -31,15 +26,16 @@ export interface FoodPostData {
     pickupAddress: string;
     expiryDate: string;
     urgency: string;
-    image?: File | null; 
+    image?: File | string | null;
+    // Added to support the populated backend data for Discover page
+    userId?: {
+        _id: string;
+        firstName: string;
+        orgName: string;
+        address: string;
+    };
 }
 
-// Claim food status
-interface claimFoodStatus {
-    status: string;
-}
-
-// --- 2. AXIOS INSTANCE ---
 export interface newUserSignup {
     firstName: string;
     lastName: string;
@@ -61,6 +57,77 @@ const apiClient = axios.create({
 
 // --- 3. API SERVICE FUNCTIONS ---
 
+/**
+ * Fetches all posts for the Discover page.
+ */
+export const getAllPosts = async (): Promise<FoodPostData[]> => {
+    try {
+        const { data } = await apiClient.get<FoodPostData[]>('/api/discover');
+        return data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch discover posts');
+    }
+};
+
+/**
+ * Fetches all posts for the logged-in user.
+ */
+export const getMyPosts = async (): Promise<FoodPostData[]> => {
+    try {
+        const { data } = await apiClient.get<FoodPostData[]>('/api/my-resources');
+        return data;
+    } catch (error: any) {
+        const message = error.response?.data?.message || 'Failed to fetch your posts';
+        throw new Error(message);
+    }
+};
+
+/**
+ * Fetches a single post by ID (used for Edit Mode)
+ */
+export const getPostById = async (id: number | string): Promise<FoodPostData> => {
+    try {
+        const { data } = await apiClient.get<FoodPostData>(`/api/resourcePost/${id}`);
+        return data;
+    } catch (error: any) {
+        const message = error.response?.data?.message || 'Failed to fetch post';
+        throw new Error(message);
+    }
+};
+
+/**
+ * Sends NEW food post data to the backend. 
+ * Uses multipart/form-data to support image uploads.
+ */
+export const postFood = async (foodData: any): Promise<number> => {
+    try {
+        const { status } = await apiClient.post('/api/resourcePost', foodData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return status;
+    } catch (error: any) {
+        const message = error.response?.data?.message || 'Failed to post food';
+        throw new Error(message);
+    }
+}
+
+/**
+ * Updates an existing food post
+ */
+export const updateFoodPost = async (id: number | string, foodData: any): Promise<number> => {
+    try {
+        const { status } = await apiClient.put(`/api/resourcePost/${id}`, foodData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return status;
+    } catch (error: any) {
+        const message = error.response?.data?.message || 'Failed to update post';
+        throw new Error(message);
+    }
+};
+
+// --- AUTHENTICATION FUNCTIONS ---
+
 export const signUp = async (userData: UserCredentials): Promise<string> => {
     try {
         const { data } = await apiClient.post<string>('/signup', userData);
@@ -71,43 +138,6 @@ export const signUp = async (userData: UserCredentials): Promise<string> => {
     }
 };
 
-
-/**
- * Sends food post data to the backend. 
- * Uses FormData to support image uploads.
- */
-export const postFood = async (foodData: FoodPostData): Promise<any> => {
-    try {
-        // const formData = new FormData();
-        // // Append all standard fields
-        // formData.append('title', foodData.title);
-        // formData.append('category', foodData.category);
-        // formData.append('description', foodData.description);
-        // formData.append('quantity', foodData.quantity);
-        // formData.append('unit', foodData.unit);
-        // formData.append('condition', foodData.condition);
-        // formData.append('pickupAddress', foodData.pickupAddress);
-        // formData.append('expiryDate', foodData.expiryDate);
-        // formData.append('urgency', foodData.urgency);
-        // formData.append('pickupWindow', JSON.stringify(foodData.pickupWindow));
-        // console.log(formData)
-        // Append image if it exists
-        // if (foodData.image) {
-        //     formData.append('image', foodData.image);
-        // }
-        console.log(foodData)
-        const { status } = await apiClient.post('/api/resourcePost', foodData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        return status;
-    } catch (error: any) {
-        const message = error.response?.data?.message || 'Failed to post food';
-        throw new Error(message);
-    }
-}
-/**
- * Sends user credentials to create a new account
- */
 export const newUserSignup = async (credentials: newUserSignup): Promise<number> => {
     try {
         const { status } = await apiClient.post<string>('users/signup', credentials);
@@ -117,10 +147,6 @@ export const newUserSignup = async (credentials: newUserSignup): Promise<number>
     }
 };
 
-/**
- * Sends user credentials to authenticate and receive a token
- * Note: Changed to .post because sending passwords via .get is insecure
- */
 export const login = async (credentials: UserCredentials): Promise<any> => {
     try {
         const response = await apiClient.post<string>('users/auth', credentials);
@@ -130,12 +156,13 @@ export const login = async (credentials: UserCredentials): Promise<any> => {
     }
 };
 
+// --- RESOURCE ACTION FUNCTIONS ---
+
 export const claimResource = async(id: string) => {
     try {
         console.log(id)
         const response = await apiClient.post<string>('api/claimResource', {id: id}, {
-            method: "POST",
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            headers: { 'Content-Type': 'application/json' }
         });
         console.log(response)
         return response;
