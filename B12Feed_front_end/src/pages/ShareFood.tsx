@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import type { ChangeEvent, FormEvent } from 'react';
 import { 
   HiArrowLeft, 
@@ -15,17 +16,16 @@ import type { FoodPostData } from '../api/api';
 interface FormErrors { [key: string]: string; }
 
 const ShareFood: React.FC = () => {
+  const { id: editId } = useParams<{ id: string }>();
+  const isEditMode = Boolean(editId);
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
-  
-  // Logic to detect Edit Mode from URL
-  const hash = window.location.hash;
-  const isEditMode = hash.includes('/edit-post/');
-  const editId = isEditMode ? parseInt(hash.split('/').pop() || '0') : null;
 
   const [formData, setFormData] = useState<FoodPostData>({
     title: '',
@@ -41,16 +41,26 @@ const ShareFood: React.FC = () => {
     image: null
   });
 
-  // AUTO-FILL LOGIC
+  // AUTO-FILL LOGIC FOR EDIT MODE
   useEffect(() => {
     if (isEditMode && editId) {
       const loadPostData = async () => {
         setIsLoading(true);
         try {
           const data = await getPostById(editId);
-          setFormData(data); // This fills the form fields automatically
-          if (typeof data.image === 'string') {
-            setImagePreview(data.image);
+          
+          // Format date to YYYY-MM-DD for the date input
+          const formattedDate = data.expiryDate ? new Date(data.expiryDate).toISOString().split('T')[0] : '';
+          
+          setFormData({
+            ...data,
+            expiryDate: formattedDate
+          });
+
+          // Handle nested backend image structure or flat image string
+          const existingImg = data.resource_image?.[0]?.image?.[0] || data.image;
+          if (existingImg && typeof existingImg === 'string') {
+            setImagePreview(existingImg);
           }
         } catch (err: any) {
           setErrors({ submit: err.message || "Could not load post details." });
@@ -109,7 +119,10 @@ const ShareFood: React.FC = () => {
       } else {
         status = await postFood(formData);
       }
-      if (status === 200 || status === 201) setShowSuccess(true);
+      
+      if (status === 200 || status === 201) {
+        setShowSuccess(true);
+      }
     } catch (err: any) {
       setErrors({ submit: err.message });
     } finally {
@@ -142,10 +155,10 @@ const ShareFood: React.FC = () => {
               {isEditMode ? "Post Updated!" : "Food posted!"}
             </h2>
             <p className="text-gray-500 mb-8">
-              {isEditMode ? "Your changes have been saved." : "Your post is now visible."}
+              {isEditMode ? "Your changes have been saved." : "Your post is now visible to the community."}
             </p>
             <button 
-              onClick={() => { window.location.href = "/my-postings"; }}
+              onClick={() => navigate("/my-postings")}
               className="w-full bg-[#058177] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#046c64] transition-all"
             >
               View my postings
@@ -154,10 +167,10 @@ const ShareFood: React.FC = () => {
         </div>
       )}
 
-      <header className="w-full px-4 md:px-16 py-6 border-b border-gray-50 mb-8">
+      <header className="w-full px-4 md:px-16 py-6 border-b border-gray-50 mb-8 flex justify-between items-center">
         <button 
           type="button"
-          onClick={() => { window.location.href = isEditMode ? "/my-postings" : "/discover"; }}
+          onClick={() => navigate(isEditMode ? "/my-postings" : "/discover")}
           className="p-3 rounded-full border border-gray-100 bg-gray-50/50 hover:bg-gray-100 transition-all"
         >
           <HiArrowLeft size={24} className="text-gray-700" />
@@ -165,16 +178,22 @@ const ShareFood: React.FC = () => {
       </header>
 
       <main className={`max-w-[1200px] mx-auto px-6 pb-20 ${showSuccess ? 'blur-sm pointer-events-none' : ''}`}>
-        <h1 className="text-3xl font-bold text-gray-900 mb-10">{isEditMode ? "Edit Post" : "Post Food"}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-10">
+          {isEditMode ? "Edit your posting" : "Post food for donation"}
+        </h1>
 
-        {errors.submit && <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl font-medium">{errors.submit}</div>}
+        {errors.submit && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl font-medium">
+            {errors.submit}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row-reverse gap-12 lg:gap-16">
           <div className="w-full lg:w-[420px] shrink-0">
             <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
             <div 
               onClick={() => fileInputRef.current?.click()}
-              className={`sticky top-8 border-2 border-dashed rounded-[32px] aspect-video lg:aspect-square flex flex-col items-center justify-center overflow-hidden cursor-pointer ${
+              className={`sticky top-8 border-2 border-dashed rounded-[32px] aspect-video lg:aspect-square flex flex-col items-center justify-center overflow-hidden cursor-pointer transition-all ${
                 errors.image ? "border-red-500 bg-red-50/10" : "border-gray-200 bg-gray-50/50 hover:bg-gray-100"
               }`}
             >
@@ -185,7 +204,8 @@ const ShareFood: React.FC = () => {
                   <div className="p-5 bg-white rounded-full shadow-sm mb-4 inline-block">
                     <HiOutlineCloudUpload size={42} className="text-gray-400" />
                   </div>
-                  <p className="text-[#058177] font-bold text-lg">Click to upload</p>
+                  <p className="text-[#058177] font-bold text-lg">Click to upload photo</p>
+                  <p className="text-gray-400 text-sm mt-1">Clear photos help donors trust you</p>
                 </div>
               )}
             </div>
@@ -196,12 +216,12 @@ const ShareFood: React.FC = () => {
             <section className="space-y-6">
               <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Food Details</h2>
               <div className="grid gap-6">
-                <InputGroup label="Food Title*" placeholder="e.g. Assorted fruits" value={formData.title} error={errors.title} onChange={(val) => setFormData({...formData, title: val})} />
-                <SelectGroup label="Category*" options={['Produce', 'Bakery', 'Dairy', 'Prepared']} value={formData.category} error={errors.category} onChange={(val) => setFormData({...formData, category: val})} />
+                <InputGroup label="Food Title*" placeholder="e.g. 50 Fresh Apples" value={formData.title} error={errors.title} onChange={(val) => setFormData({...formData, title: val})} />
+                <SelectGroup label="Category*" options={['Produce', 'Bakery', 'Dairy', 'Prepared Meals', 'Pantry']} value={formData.category} error={errors.category} onChange={(val) => setFormData({...formData, category: val})} />
                 
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-gray-700">Description*</label>
-                  <textarea rows={4} className={`w-full border rounded-2xl px-5 py-4 outline-none transition-all resize-none font-medium ${errors.description ? "border-red-500" : "border-gray-200 focus:border-[#058177]"}`} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
+                  <textarea rows={4} className={`w-full border rounded-2xl px-5 py-4 outline-none transition-all resize-none font-medium ${errors.description ? "border-red-500" : "border-gray-200 focus:border-[#058177]"}`} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Describe what's included and any dietary info..." />
                   {errors.description && <p className="text-red-500 text-sm font-medium">{errors.description}</p>}
                 </div>
 
@@ -223,7 +243,7 @@ const ShareFood: React.FC = () => {
 
             <section className="space-y-6">
               <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Pickup Location</h2>
-              <InputGroup label="Pickup Address*" placeholder="123 Food Bank Road" value={formData.pickupAddress} error={errors.pickupAddress} onChange={(val) => setFormData({...formData, pickupAddress: val})} />
+              <InputGroup label="Pickup Address*" placeholder="Enter your full street address" value={formData.pickupAddress} error={errors.pickupAddress} onChange={(val) => setFormData({...formData, pickupAddress: val})} />
               <div className="grid grid-cols-2 gap-6">
                 <TimeInput label="Available From*" value={formData.pickupWindow.from} error={errors.pickupFrom} onChange={(val) => setFormData({...formData, pickupWindow: {...formData.pickupWindow, from: val}})} />
                 <TimeInput label="Available To*" value={formData.pickupWindow.to} error={errors.pickupTo} onChange={(val) => setFormData({...formData, pickupWindow: {...formData.pickupWindow, to: val}})} />
@@ -231,7 +251,7 @@ const ShareFood: React.FC = () => {
             </section>
 
             <section className="space-y-6">
-              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Urgency</h2>
+              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Urgency & Safety</h2>
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-gray-700">Expiry Date*</label>
                 <div className="relative">
@@ -247,7 +267,7 @@ const ShareFood: React.FC = () => {
             </section>
 
             <button type="submit" disabled={isSubmitting} className="w-full bg-[#058177] hover:bg-[#046c64] text-white py-5 rounded-[20px] font-bold flex items-center justify-center gap-3 transition-all text-lg disabled:opacity-70 shadow-xl shadow-[#058177]/20">
-              {isSubmitting ? (isEditMode ? 'Updating...' : 'Posting...') : (isEditMode ? 'Update Post' : 'Post Food')} 
+              {isSubmitting ? (isEditMode ? 'Saving Changes...' : 'Posting...') : (isEditMode ? 'Save Changes' : 'Confirm & Post')} 
               <HiArrowRight size={20} />
             </button>
           </div>
@@ -261,7 +281,7 @@ const ShareFood: React.FC = () => {
 const InputGroup: React.FC<{label: string, placeholder: string, value: string, error?: string, type?: string, onChange: (val: string) => void}> = ({ label, placeholder, value, error, type = "text", onChange }) => (
   <div className="space-y-2">
     <label className="block text-sm font-bold text-gray-700">{label}</label>
-    <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={`w-full border rounded-2xl px-5 py-4 outline-none font-medium ${error ? "border-red-500 bg-red-50/10" : "border-gray-200 focus:border-[#058177]"}`} />
+    <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={`w-full border rounded-2xl px-5 py-4 outline-none font-medium transition-colors ${error ? "border-red-500 bg-red-50/10" : "border-gray-200 focus:border-[#058177]"}`} />
     {error && <p className="text-red-500 text-xs mt-1 font-medium">{error}</p>}
   </div>
 );
@@ -276,6 +296,7 @@ const SelectGroup: React.FC<{label: string, options: string[], value: string, er
       </select>
       <HiChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
     </div>
+    {error && <p className="text-red-500 text-xs mt-1 font-medium">{error}</p>}
   </div>
 );
 
@@ -283,12 +304,13 @@ const TimeInput: React.FC<{label: string, value: string, onChange: (val: string)
   <div className="space-y-2">
     <label className="block text-sm font-bold text-gray-700">{label}</label>
     <input type="time" value={value} onChange={(e) => onChange(e.target.value)} className={`w-full border rounded-2xl px-5 py-4 outline-none font-medium ${error ? "border-red-500" : "border-gray-200 focus:border-[#058177]"}`} />
+    {error && <p className="text-red-500 text-xs mt-1 font-medium">{error}</p>}
   </div>
 );
 
 const RadioBox: React.FC<{label: string, selected: boolean, onClick: () => void}> = ({ label, selected, onClick }) => (
   <div onClick={onClick} className={`flex items-center gap-3 border rounded-2xl px-5 py-4 cursor-pointer transition-all ${selected ? 'border-[#058177] bg-[#e9f6f3]' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selected ? 'border-[#058177]' : 'border-gray-300'}`}>
+    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selected ? 'border-[#058177]' : 'border-gray-300'}`}>
       {selected && <div className="w-2.5 h-2.5 rounded-full bg-[#058177]" />}
     </div>
     <span className={`text-sm font-bold ${selected ? 'text-[#058177]' : 'text-gray-500'}`}>{label}</span>

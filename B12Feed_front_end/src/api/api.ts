@@ -12,7 +12,8 @@ export interface UserCredentials {
     phone?: string;
 }
 
-export interface newUserSignup {
+// Renamed to avoid "Type vs Value" naming conflicts
+export interface NewUserSignupData {
     firstName: string;
     lastName: string;
     email: string;
@@ -23,8 +24,8 @@ export interface newUserSignup {
 }
 
 export interface FoodPostData {
-    _id?: string; // MongoDB ID
-    id?: number | string; // Local/Legacy ID support
+    _id?: string;
+    id?: number | string;
     title: string;
     category: string;
     description: string;
@@ -38,12 +39,10 @@ export interface FoodPostData {
     pickupAddress: string;
     expiryDate: string;
     urgency: string;
-    // Flexible image support for both raw File uploads and backend responses
     image?: any; 
     resource_image?: Array<{
         image: string[];
     }>;
-    // Populated User data from backend
     userId?: {
         _id: string;
         firstName: string;
@@ -65,9 +64,6 @@ const apiClient = axios.create({
 
 // --- 3. API SERVICE FUNCTIONS ---
 
-/**
- * Fetches all posts for the Discover page.
- */
 export const listResources = async () => {
     try {
         const response = await apiClient.get('/api/discover');
@@ -77,9 +73,6 @@ export const listResources = async () => {
     }
 };
 
-/**
- * Fetches all posts for the logged-in user.
- */
 export const getMyPosts = async (): Promise<FoodPostData[]> => {
     try {
         const { data } = await apiClient.get<FoodPostData[]>('/api/my-resources');
@@ -89,9 +82,6 @@ export const getMyPosts = async (): Promise<FoodPostData[]> => {
     }
 };
 
-/**
- * Fetches a single post by ID (used for Details/Edit Mode)
- */
 export const detailResource = async (id: string) => {
     try {
         const response = await apiClient.get(`/api/detail/${id}`);
@@ -101,9 +91,6 @@ export const detailResource = async (id: string) => {
     }
 };
 
-/**
- * Support for fetching by ID via resourcePost route if needed
- */
 export const getPostById = async (id: number | string): Promise<FoodPostData> => {
     try {
         const { data } = await apiClient.get<FoodPostData>(`/api/resourcePost/${id}`);
@@ -113,29 +100,18 @@ export const getPostById = async (id: number | string): Promise<FoodPostData> =>
     }
 };
 
-/**
- * Sends NEW food post data to the backend. 
- * Uses multipart/form-data to support image uploads.
- */
 export const postFood = async (foodData: any): Promise<number> => {
     try {
-        const { status } = await apiClient.post('/api/resourcePost', foodData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const { status } = await apiClient.post('/api/resourcePost', foodData);
         return status;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to post food');
     }
 };
 
-/**
- * Updates an existing food post
- */
 export const updateFoodPost = async (id: number | string, foodData: any): Promise<number> => {
     try {
-        const { status } = await apiClient.put(`/api/resourcePost/${id}`, foodData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const { status } = await apiClient.put(`/api/resourcePost/${id}`, foodData);
         return status;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to update post');
@@ -144,16 +120,11 @@ export const updateFoodPost = async (id: number | string, foodData: any): Promis
 
 // --- 4. AUTHENTICATION FUNCTIONS ---
 
-export const signUp = async (userData: UserCredentials): Promise<string> => {
-    try {
-        const { data } = await apiClient.post<string>('/signup', userData);
-        return data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Sign up failed');
-    }
-};
-
-export const newUserSignup = async (credentials: newUserSignup): Promise<number> => {
+/**
+ * Main Signup function
+ * Uses the /users/signup endpoint
+ */
+export const signupUser = async (credentials: NewUserSignupData): Promise<number> => {
     try {
         const { status } = await apiClient.post('users/signup', credentials);
         return status;
@@ -174,10 +145,7 @@ export const login = async (credentials: UserCredentials): Promise<any> => {
 
 export const claimResource = async (id: string) => {
     try {
-        // Log ID for debugging as in your previous version
-        console.log("Claiming Resource ID:", id);
         const response = await apiClient.post('api/claimResource', { id });
-        console.log("Claim Response:", response);
         return response;
     } catch (error: any) {
         throw new Error(error.response?.data?.message || 'Failed to claim resource');
