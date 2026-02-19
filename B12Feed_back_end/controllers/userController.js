@@ -7,12 +7,12 @@ const userSignUp = async (request, response) => {
     // Simulate form request data
     // const email = 'example123@example.com'; // Email request data
     // const password = 'password123'; // Password request data
-    const { fName, lName, email, password, orgName, address, pNumber } = request.body;
+    const { firstName, lastName, email, password, orgName, address, phone } = request.body;
     // Create attempts to create a user in DB
     try {
         // Add User in DB
-        await registerUserOrg(fName, lName, email, password, orgName, address, pNumber);
-        await needApproval(fName, lName, orgName)
+        await registerUserOrg(firstName, lastName, email, password, orgName, address, phone);
+        await needApproval(firstName, lastName, orgName)
         response.status(200).json({
             message: "User Registered successfully"
         });

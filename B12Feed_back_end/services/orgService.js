@@ -1,4 +1,4 @@
-import { User, Organization, ResourcePost } from '../models/dbSchema.js';
+import { User, Organization, ResourcePost, ClaimStatus } from '../models/dbSchema.js';
 
 // Load the User with it's Organization
 const findUserOrg = (email) => {
@@ -93,8 +93,25 @@ const resourcePost = async (user, resourceForm,) => {
     return resourcePost;
 }
 
+const claimResource = async(postId, user) => {
+    const resourcePost = await ResourcePost.findById(postId);
+    console.log(resourcePost)
+    const claimResource = await ClaimStatus.insertOne({
+        status: 'pending pickup',
+        resource_post_id: resourcePost._id,
+        organization_id: resourcePost.organization_id,
+        user_id: resourcePost.user_id,
+        claimed_date: new Date(),
+        expired_date: new Date().setDate(new Date().getDate() + 1),
+    })
+    resourcePost.claim_status_id = claimResource._id;
+    resourcePost.save();
+    return claimResource;
+}
+
 export {
     findUserOrg,
     updateOrg,
-    resourcePost
+    resourcePost,
+    claimResource
 }
