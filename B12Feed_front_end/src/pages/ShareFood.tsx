@@ -207,7 +207,7 @@ const ShareFood: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-6">
                   <InputGroup label="Quantity*" placeholder="0" type="text" value={formData.quantity} error={errors.quantity} onChange={handleQuantityChange} />
-                  <SelectGroup label="Unit*" options={['kg', 'lbs', 'Items', 'Boxes']} value={formData.unit} error={errors.unit} onChange={(val) => setFormData({...formData, unit: val})} />
+                  <SelectGroup label="Unit*" options={['crate', 'boxes', 'bags', 'portions', 'kg', 'lbs']} value={formData.unit} error={errors.unit} onChange={(val) => setFormData({...formData, unit: val})} />
                 </div>
 
                 <div className="space-y-2">

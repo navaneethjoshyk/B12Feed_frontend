@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 // --- 1. TYPES & INTERFACES ---
+
 export interface UserCredentials {
     email: string;
     password?: string;
@@ -11,8 +12,19 @@ export interface UserCredentials {
     phone?: string;
 }
 
+export interface newUserSignup {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orgName: string;
+    orgAddress: string;
+    phone: string;
+}
+
 export interface FoodPostData {
-    id?: number;
+    _id?: string; // MongoDB ID
+    id?: number | string; // Local/Legacy ID support
     title: string;
     category: string;
     description: string;
@@ -26,27 +38,23 @@ export interface FoodPostData {
     pickupAddress: string;
     expiryDate: string;
     urgency: string;
-    image?: File | string | null;
-    // Added to support the populated backend data for Discover page
+    // Flexible image support for both raw File uploads and backend responses
+    image?: any; 
+    resource_image?: Array<{
+        image: string[];
+    }>;
+    // Populated User data from backend
     userId?: {
         _id: string;
         firstName: string;
         orgName: string;
         address: string;
     };
-}
-
-export interface newUserSignup {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    orgName: string;
-    orgAddress: string;
-    phone: string;
+    status?: string;
 }
 
 // --- 2. AXIOS INSTANCE CONFIGURATION ---
+
 const apiClient = axios.create({
     baseURL: 'http://localhost:3001',
     headers: {
@@ -60,12 +68,12 @@ const apiClient = axios.create({
 /**
  * Fetches all posts for the Discover page.
  */
-export const getAllPosts = async (): Promise<FoodPostData[]> => {
+export const listResources = async () => {
     try {
-        const { data } = await apiClient.get<FoodPostData[]>('/api/discover');
-        return data;
+        const response = await apiClient.get('/api/discover');
+        return response;
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to fetch discover posts');
+        throw new Error(error.response?.data?.message || 'Failed to retrieve resources');
     }
 };
 
@@ -77,21 +85,31 @@ export const getMyPosts = async (): Promise<FoodPostData[]> => {
         const { data } = await apiClient.get<FoodPostData[]>('/api/my-resources');
         return data;
     } catch (error: any) {
-        const message = error.response?.data?.message || 'Failed to fetch your posts';
-        throw new Error(message);
+        throw new Error(error.response?.data?.message || 'Failed to fetch your posts');
     }
 };
 
 /**
- * Fetches a single post by ID (used for Edit Mode)
+ * Fetches a single post by ID (used for Details/Edit Mode)
+ */
+export const detailResource = async (id: string) => {
+    try {
+        const response = await apiClient.get(`/api/detail/${id}`);
+        return response;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to retrieve details');
+    }
+};
+
+/**
+ * Support for fetching by ID via resourcePost route if needed
  */
 export const getPostById = async (id: number | string): Promise<FoodPostData> => {
     try {
         const { data } = await apiClient.get<FoodPostData>(`/api/resourcePost/${id}`);
         return data;
     } catch (error: any) {
-        const message = error.response?.data?.message || 'Failed to fetch post';
-        throw new Error(message);
+        throw new Error(error.response?.data?.message || 'Failed to fetch post');
     }
 };
 
@@ -106,10 +124,9 @@ export const postFood = async (foodData: any): Promise<number> => {
         });
         return status;
     } catch (error: any) {
-        const message = error.response?.data?.message || 'Failed to post food';
-        throw new Error(message);
+        throw new Error(error.response?.data?.message || 'Failed to post food');
     }
-}
+};
 
 /**
  * Updates an existing food post
@@ -121,70 +138,48 @@ export const updateFoodPost = async (id: number | string, foodData: any): Promis
         });
         return status;
     } catch (error: any) {
-        const message = error.response?.data?.message || 'Failed to update post';
-        throw new Error(message);
+        throw new Error(error.response?.data?.message || 'Failed to update post');
     }
 };
 
-// --- AUTHENTICATION FUNCTIONS ---
+// --- 4. AUTHENTICATION FUNCTIONS ---
 
 export const signUp = async (userData: UserCredentials): Promise<string> => {
     try {
         const { data } = await apiClient.post<string>('/signup', userData);
         return data;
     } catch (error: any) {
-        const message = error.response?.data?.message || 'Sign up failed';
-        throw new Error(message);
+        throw new Error(error.response?.data?.message || 'Sign up failed');
     }
 };
 
 export const newUserSignup = async (credentials: newUserSignup): Promise<number> => {
     try {
-        const { status } = await apiClient.post<string>('users/signup', credentials);
+        const { status } = await apiClient.post('users/signup', credentials);
         return status;
-    } catch (error) {
-        throw new Error('Sign up failed');
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Sign up failed');
     }
 };
 
 export const login = async (credentials: UserCredentials): Promise<any> => {
     try {
-        const response = await apiClient.post<string>('users/auth', credentials);
-        return response;
-    } catch (error) {
-        throw new Error('Login failed');
+        return await apiClient.post('users/auth', credentials);
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Login failed');
     }
 };
 
-// --- RESOURCE ACTION FUNCTIONS ---
+// --- 5. RESOURCE ACTION FUNCTIONS ---
 
-export const claimResource = async(id: string) => {
+export const claimResource = async (id: string) => {
     try {
-        console.log(id)
-        const response = await apiClient.post<string>('api/claimResource', {id: id}, {
-            headers: { 'Content-Type': 'application/json' }
-        });
-        console.log(response)
+        // Log ID for debugging as in your previous version
+        console.log("Claiming Resource ID:", id);
+        const response = await apiClient.post('api/claimResource', { id });
+        console.log("Claim Response:", response);
         return response;
-    } catch(error) {
-        throw new Error('Failed to claim')
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || 'Failed to claim resource');
     }
-}
-
-export const listResources = async() => {
-    try {
-        const response = await apiClient.get('api/discover');
-        return response;
-    } catch(error) {
-        throw new Error('Failed to retrieve')
-    }
-}
-
-export const detailResource = async(id: string) => {
-    try {
-        const response = await apiClient.get(`api/detail/${id}`)
-        return response;
-    } catch(error) {
-        throw new Error('Failed to retrieve');
-    }
-}
+};

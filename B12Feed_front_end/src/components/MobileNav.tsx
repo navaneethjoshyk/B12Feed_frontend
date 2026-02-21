@@ -1,12 +1,11 @@
-import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  HiOutlineHome, 
-  HiOutlineUserGroup, 
-  HiOutlineArrowUpTray, 
-  HiOutlineUserCircle 
-} from 'react-icons/hi2'; // Icons exactly as used in Sidebar
-import { FiPlus } from 'react-icons/fi'; // Icon exactly as used in Sidebar
+  FiGrid, 
+  FiShoppingBag, 
+  FiLayers, 
+  FiUser, 
+  FiPlus 
+} from 'react-icons/fi'; 
 
 const MobileNav = () => {
   const navigate = useNavigate();
@@ -19,20 +18,20 @@ const MobileNav = () => {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-100 z-50 px-8 pb-8 pt-3 shadow-[0_-4px_10px_rgba(0,0,0,0.03)]">
       <div className="flex items-center justify-between relative max-w-full">
         
-        {/* Discover - Home Icon */}
+        {/* Discover - FiGrid Icon */}
         <button 
           onClick={() => navigate('/discover')} 
           className={isActive('/discover') ? "text-[#058177]" : "text-gray-300"}
         >
-          <HiOutlineHome size={26} />
+          <FiGrid size={24} />
         </button>
         
-        {/* My Claims - Group Icon */}
+        {/* My Claims - FiShoppingBag Icon */}
         <button 
           onClick={() => navigate('/my-claims')} 
           className={isActive('/my-claims') ? "text-[#058177]" : "text-gray-300"}
         >
-          <HiOutlineUserGroup size={26} />
+          <FiShoppingBag size={24} />
         </button>
 
         {/* Floating Plus Button - Share Food Action */}
@@ -45,23 +44,23 @@ const MobileNav = () => {
           </button>
         </div>
 
-        {/* My Postings - Tray Icon (Synced with path /my-resources) */}
+        {/* My Postings - FiLayers Icon (Synced with path /my-postings) */}
         <button 
-          onClick={() => navigate('/my-resources')} 
-          className={isActive('/my-resources') 
-            ? "text-[#058177] bg-[#F0FDF4] p-2 rounded-xl" 
-            : "text-gray-300 p-2"
+          onClick={() => navigate('/my-postings')} 
+          className={isActive('/my-postings') 
+            ? "text-[#058177]" 
+            : "text-gray-300"
           }
         >
-          <HiOutlineArrowUpTray size={26} />
+          <FiLayers size={24} />
         </button>
 
-        {/* Profile - User Icon */}
+        {/* Profile - FiUser Icon */}
         <button 
           onClick={() => navigate('/profile')} 
           className={isActive('/profile') ? "text-[#058177]" : "text-gray-300"}
         >
-          <HiOutlineUserCircle size={26} />
+          <FiUser size={24} />
         </button>
       </div>
     </nav>
