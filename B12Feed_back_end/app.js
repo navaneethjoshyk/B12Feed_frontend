@@ -4,13 +4,15 @@ import authenticateJWT from './middlewares/authenticate.js';
 import cors from 'cors';
 import org from './routes/orgRoutes.js';
 import user from './routes/userRoutes.js';
-
+import loadDummyData from './utils/loadDummyData.js';
 import multer from 'multer';
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage })
 const app = express();
 
 connectDB();
+
+// loadDummyData()
 
 app.use(cors({
     origin: 'http://localhost:5173',
