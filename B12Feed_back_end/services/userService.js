@@ -24,7 +24,7 @@ const registerUserOrg = async (fName, lName, email, password, orgName, address, 
     })
     // Add organization id to the new User record
     user.userOrg = organization._id;
-   await user.save();
+    return await user.save();
 }
 
 // Load the User for Authentication
