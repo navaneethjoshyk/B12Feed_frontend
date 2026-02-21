@@ -4,13 +4,15 @@ import { FiInfo } from "react-icons/fi";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
 import Input from "../components/Input";
-import { signUp } from "../api/api";
+// Updated to use the correct function name from your api.ts
+import { signupUser } from "../api/api";
 
 const RegisterJoin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
+  // Using the logic from the incoming commit: check if name exists
   const orgName = queryParams.get("name"); 
 
   // Form State
@@ -36,10 +38,16 @@ const RegisterJoin: React.FC = () => {
     setError("");
     
     try {
-      await signUp({ 
-        email: formData.email, 
-        password: formData.password 
-      });
+      // Cast the payload as any or use a specific interface if you have one for 'Join'
+      // Note: signupUser expects NewUserSignupData, make sure the backend handles 
+      // missing org fields for 'Join' requests.
+      await signupUser({ 
+        ...formData,
+        orgName: orgName || "",
+        orgAddress: "", // These might be populated by the invite logic on the backend
+        phone: ""
+      } as any);
+      
       navigate("/discover"); 
     } catch (err: any) {
       setError(err.message || "Failed to create account. Please try again.");

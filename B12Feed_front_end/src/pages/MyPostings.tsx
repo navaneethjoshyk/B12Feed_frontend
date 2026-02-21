@@ -133,14 +133,14 @@ const MyPostings: React.FC = () => {
                 {/* Image Section */}
                 <div className="relative h-52 bg-gray-50 overflow-hidden">
                    <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm z-10">
-                      <div className={`w-2 h-2 rounded-full ${post.status === 'available' || !post.status ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                      <div className={`w-2 h-2 rounded-full ${post.status?.toLowerCase() === 'available' || !post.status ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
                       <span className="text-[11px] font-black text-emerald-700 uppercase tracking-tight">
                         {post.status || "Available"}
                       </span>
                    </div>
                    
                    <img 
-                      src={post.resource_image?.[0]?.image?.[0] || post.image || 'https://via.placeholder.com/400'} 
+                      src={post.resource_image?.[0]?.image?.[0] || (typeof post.image === 'string' ? post.image : '') || 'https://via.placeholder.com/400'} 
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                     />

@@ -12,7 +12,7 @@ export interface UserCredentials {
     phone?: string;
 }
 
-// Renamed to avoid "Type vs Value" naming conflicts
+
 export interface NewUserSignupData {
     firstName: string;
     lastName: string;
