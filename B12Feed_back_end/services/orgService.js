@@ -1,4 +1,10 @@
-import { User, Organization, ResourcePost, ClaimStatus } from '../models/dbSchema.js';
+import { User, Organization, ResourcePost, ClaimStatus, ResourceImage } from '../models/dbSchema.js';
+import {IMAGEKIT_PRIVATE_KEY} from '../config/config.js';
+import ImageKit from '@imagekit/nodejs';
+
+const client = new ImageKit({
+  privateKey: IMAGEKIT_PRIVATE_KEY, // This is the default and can be omitted
+});
 
 // Load the User with it's Organization
 const findUserOrg = (email) => {
@@ -52,7 +58,7 @@ const updateOrg = (id, form) => {
 }
 
 // Posting Resources
-const resourcePost = async (user, resourceForm,) => {
+const resourcePost = async (user, resourceForm, imageFile) => {
     const {_id, userOrg} = user;
     const {
         title,
@@ -65,11 +71,23 @@ const resourcePost = async (user, resourceForm,) => {
         pickupAddress,
         expiryDate,
         urgency,
-        image,
         handling
     } = resourceForm;
     
     if(!resourceForm) return null;
+
+    const images = await client.files.upload({
+        file: imageFile.buffer.toString("base64"),
+        folder: '/B12Feed',
+        fileName: imageFile.originalname
+    });
+
+    const resourceImagePost = await ResourceImage.insertOne({
+        image: [images.url],
+        image_description: title
+    })
+
+    console.log(images)
 
     const resourcePost = await ResourcePost.insertOne({
         organization_id: userOrg,
@@ -89,6 +107,8 @@ const resourcePost = async (user, resourceForm,) => {
         created_at: new Date(),
         updated_at: new Date(),
     });
+
+    console.log(resourcePost)
     
     return resourcePost;
 }

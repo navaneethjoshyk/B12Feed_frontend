@@ -1,9 +1,13 @@
-import express, { urlencoded } from 'express';
+import express from 'express';
 import connectDB from './config/db.js';
 import authenticateJWT from './middlewares/authenticate.js';
 import cors from 'cors';
 import org from './routes/orgRoutes.js';
 import user from './routes/userRoutes.js';
+
+import multer from 'multer';
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage })
 const app = express();
 
 connectDB();
@@ -22,6 +26,6 @@ app.get('/', async (request, response) => {
 
 app.use('/users', user);
 
-app.use('/api', authenticateJWT, org);
+app.use('/api', authenticateJWT, upload.single('image'), org);
 
 export default app;

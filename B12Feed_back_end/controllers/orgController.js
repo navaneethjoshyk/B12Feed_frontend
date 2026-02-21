@@ -17,7 +17,7 @@ const userOrg = async(request, response, next) => {
 }
 
 const postResource = async(request, response, next) => {
-    await resourcePost(request.user, request.body)
+    await resourcePost(request.user, request.body, request.file)
     response.json({
         message: "Hello This ran"
     })

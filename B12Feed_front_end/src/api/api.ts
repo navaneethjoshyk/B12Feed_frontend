@@ -97,7 +97,7 @@ export const postFood = async (foodData: FoodPostData): Promise<any> => {
         // }
         console.log(foodData)
         const { status } = await apiClient.post('/api/resourcePost', foodData, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
         return status;
     } catch (error: any) {

@@ -14,11 +14,14 @@ const BREVO_USER = process.env.BREVO_USER;
 
 const BREVO_PASS = process.env.BREVO_PASS;
 
+const IMAGEKIT_PRIVATE_KEY = process.env.IMAGEKIT_PRIVATE_KEY;
+
 export {
     PORT,
     MONGO_URI,
     CLIENT_SIDE,
     SECRET,
     BREVO_USER,
-    BREVO_PASS
+    BREVO_PASS,
+    IMAGEKIT_PRIVATE_KEY
 }
