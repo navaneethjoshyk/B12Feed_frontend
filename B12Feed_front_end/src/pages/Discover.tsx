@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store";
@@ -15,8 +15,19 @@ import {
 } from "react-icons/fi";
 import Logo from "../components/Logo";
 import MobileNav from "../components/MobileNav";
+import { listResources } from "../api/api";
 
 const Discover: React.FC = () => {
+  const [discover, setDiscover] = useState([]);
+
+  useEffect(() => {
+    const response = async() => {
+      const response = await listResources();
+      setDiscover(response.data)
+    }
+    response();
+  }, [])
+
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   
@@ -159,10 +170,10 @@ const Discover: React.FC = () => {
 
             {/* CARDS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {["69951e3da5d23ae9d12c4103", 2, 3, 4, 5, 6].map((i) => (
+              {discover.map((i: any) => (
                 <div
-                  key={i}
-                  onClick={() => navigate(`/resource/${i}`)}
+                  key={i._id}
+                  onClick={() => navigate(`/resource/${i._id}`)}
                   className="group cursor-pointer bg-white rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden border border-gray-50"
                 >
                   <div className="relative h-44 m-1.5 rounded-xl overflow-hidden bg-neutral-100 flex items-center justify-center text-neutral-300 font-bold">
@@ -170,7 +181,7 @@ const Discover: React.FC = () => {
                       <StatusPill type={i === 2 ? "pending" : "available"} />
                     </div>
                     <img 
-                      src={`https://picsum.photos/seed/${i + "10"}/600/400`} 
+                      src={i.resource_image[0].image[0]} 
                       alt="Food" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -178,7 +189,7 @@ const Discover: React.FC = () => {
 
                   <div className="p-5 pt-3">
                     <div className="flex justify-between mb-1">
-                      <h3 className="font-bold text-lg">Assorted Fruits & Veg</h3>
+                      <h3 className="font-bold text-lg">{i.title}</h3>
                       <UrgencyPill urgent={i === 3} />
                     </div>
 
@@ -189,7 +200,7 @@ const Discover: React.FC = () => {
                     <div className="flex justify-between items-center border-t border-[var(--color-border-soft)] pt-4">
                       <div className="text-xs">
                         <p className="font-semibold text-neutral-400 uppercase tracking-wide">LOCATION</p>
-                        <p className="text-neutral-700 font-medium">Downtown Food Hub</p>
+                        <p className="text-neutral-700 font-medium">{i.location}</p>
                       </div>
 
                       <button className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white px-5 py-2 rounded-xl text-sm font-semibold transition-colors">
