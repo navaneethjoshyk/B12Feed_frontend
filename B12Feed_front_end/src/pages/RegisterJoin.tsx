@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FiInfo } from "react-icons/fi"; // Added for the Info screen
+import { FiInfo } from "react-icons/fi"; 
 import Logo from "../components/Logo";
 import Button from "../components/Button";
 import Input from "../components/Input";
@@ -11,7 +11,7 @@ const RegisterJoin: React.FC = () => {
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
-  const orgName = queryParams.get("name"); // Removed default to check if it exists
+  const orgName = queryParams.get("name"); 
 
   // Form State
   const [formData, setFormData] = useState({
