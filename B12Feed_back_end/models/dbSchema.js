@@ -89,5 +89,8 @@ export {
     Organization,
     ResourcePost,
     ResourceImage,
+<<<<<<< HEAD
     ClaimStatus
+=======
+>>>>>>> 7af64ab (added the multer module)
 };
