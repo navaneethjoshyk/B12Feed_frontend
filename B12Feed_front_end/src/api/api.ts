@@ -143,3 +143,21 @@ export const claimResource = async(id: string) => {
         throw new Error('Failed to claim')
     }
 }
+
+export const listResources = async() => {
+    try {
+        const response = await apiClient.get('api/discover');
+        return response;
+    } catch(error) {
+        throw new Error('Failed to retrieve')
+    }
+}
+
+export const detailResource = async(id: string) => {
+    try {
+        const response = await apiClient.get(`api/detail/${id}`)
+        return response;
+    } catch(error) {
+        throw new Error('Failed to retrieve');
+    }
+}

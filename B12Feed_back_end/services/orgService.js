@@ -14,7 +14,7 @@ const findUserOrg = (email) => {
     return user.userOrg;
 }
 
-// Load the Org
+// Update the org details
 const updateOrg = (id, form) => {
     const {
         name,
@@ -113,6 +113,7 @@ const resourcePost = async (user, resourceForm, imageFile) => {
     return resourcePost;
 }
 
+// Claim a resource
 const claimResource = async(postId, user) => {
     const resourcePost = await ResourcePost.findById(postId);
     console.log(resourcePost)
@@ -129,9 +130,23 @@ const claimResource = async(postId, user) => {
     return claimResource;
 }
 
+// Show list of Resource of objects
+const listOfResource = async() => {
+    const listOfResource = await ResourcePost.find({}).populate("resource_image");
+    return listOfResource;
+}
+
+// Show a resource object
+const showResource = async(id) => {
+    const resource = await ResourcePost.findById(id).populate(["resource_image", "organization_id"]);
+    return resource;
+}
+
 export {
     findUserOrg,
     updateOrg,
     resourcePost,
-    claimResource
+    claimResource,
+    listOfResource,
+    showResource
 }

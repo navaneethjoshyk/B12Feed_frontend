@@ -1,15 +1,29 @@
-import React from 'react';
-import { claimResource } from '../api/api';
+import React, { useEffect, useState } from 'react';
+import { claimResource, detailResource } from '../api/api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiShare2, FiClock, FiMapPin, FiArrowRight, FiBell, FiPlus, FiHome, FiLayers, FiMessageSquare, FiUser } from 'react-icons/fi';
 
 const ResourceDetails: React.FC = () => {
   const navigate = useNavigate();
   const id = useParams<{id: string}>();
-  
+  const [detail, setDetail] = useState<any>();
+
+  useEffect(() => {
+    const resourceDetail = async() => {
+      if(id.id) {
+        const response = await detailResource(id.id);
+        setDetail(response.data)
+        return;
+      }
+    }
+    resourceDetail()
+  }, [])
+
   const claimResourcePost = async() => {
     if(id.id) return await claimResource(id.id);
   }
+
+  if(!detail) return <p>Loading...</p>
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-white overflow-hidden">
@@ -41,7 +55,7 @@ const ResourceDetails: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
             
             <div className="space-y-4 md:space-y-6">
-              <div className="aspect-square bg-neutral-100 rounded-[2rem] md:rounded-[3rem] flex items-center justify-center text-neutral-300 font-black">IMAGE</div>
+              <img src={detail.resource_image[0].image[0]} className="aspect-square bg-neutral-100 rounded-[2rem] md:rounded-[3rem] flex items-center justify-center text-neutral-300 font-black" />
               <div className="flex gap-2">
                 <span className="bg-neutral-100 px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider">Prepared</span>
                 <span className="bg-neutral-100 px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider">Fresh</span>
@@ -57,7 +71,7 @@ const ResourceDetails: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-2xl md:text-3xl font-bold">Today 2PM - 5PM</h2>
-                    <p className="text-sm text-neutral-500 mt-2 flex items-center gap-2"><FiMapPin /> 123 Main St, Brampton</p>
+                    <p className="text-sm text-neutral-500 mt-2 flex items-center gap-2"><FiMapPin /> {detail.location}</p>
                   </div>
                   <FiClock size={40} className="text-neutral-200 hidden sm:block" />
                 </div>
