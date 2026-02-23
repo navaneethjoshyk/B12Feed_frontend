@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-
-import { signupUser, type NewUserSignupData } from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { signupUser, type NewUserSignupData } from "../api/api";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
 import Input from "../components/Input";
@@ -53,9 +52,9 @@ const RegisterCreate: React.FC = () => {
     setLoading(true);
     setApiError("");
     
-    console.log("Submitting:", formData);
-
     try {
+      console.log("Submitting:", formData);
+      
       // Use signupUser (the function) and NewUserSignupData (the type)
       const status = await signupUser(formData as NewUserSignupData);
 
@@ -65,8 +64,10 @@ const RegisterCreate: React.FC = () => {
       } else {
         setApiError("Registration failed. Please try again.");
       }
-    } catch (error: any) {
-      setApiError(error.message || "An unexpected error occurred. Please try again.");
+    } catch (err: any) {
+      // Capture the error message thrown by the axios catch block in api.ts
+      setApiError(err.message || "Failed to create account. Please check your details.");
+      console.error("Signup error:", err);
     } finally {
       setLoading(false);
     }
