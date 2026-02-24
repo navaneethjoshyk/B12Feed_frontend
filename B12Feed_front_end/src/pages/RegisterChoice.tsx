@@ -20,9 +20,7 @@ const RegisterChoice: React.FC = () => {
           must be reviewed before access is granted.
         </p>
 
-        {/* Selection Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          
           <OptionCard
             title="Create an organization"
             description="For organizations new to B12Feed platform."
@@ -42,7 +40,6 @@ const RegisterChoice: React.FC = () => {
   );
 };
 
-/* --- Internal Component for the Cards --- */
 interface OptionCardProps {
   title: string;
   description: string;
@@ -56,18 +53,11 @@ const OptionCard: React.FC<OptionCardProps> = ({ title, description, icon, onCli
       onClick={onClick}
       className="group cursor-pointer p-10 rounded-3xl border border-neutral-100 bg-neutral-50/30 hover:bg-white hover:border-[#058177]/30 hover:shadow-xl hover:shadow-[#058177]/5 transition-all duration-300 flex flex-col items-center text-center"
     >
-      
       <div className="mb-6 p-4 rounded-2xl bg-white group-hover:bg-[#E6F6F4] transition-colors duration-300 flex items-center justify-center">
         {icon}
       </div>
-      
-      <h3 className="text-xl font-bold text-neutral-800 mb-2">
-        {title}
-      </h3>
-      
-      <p className="text-neutral-500 text-sm font-medium leading-relaxed">
-        {description}
-      </p>
+      <h3 className="text-xl font-bold text-neutral-800 mb-2">{title}</h3>
+      <p className="text-neutral-500 text-sm font-medium leading-relaxed">{description}</p>
     </div>
   );
 };

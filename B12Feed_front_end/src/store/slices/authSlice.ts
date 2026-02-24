@@ -9,6 +9,7 @@ export interface AuthUser {
   email: string;
   profileImage?: string;
   roles: string[];
+  orgName?: string;
   organization?: string;
 }
 

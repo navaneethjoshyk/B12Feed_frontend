@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { newUserSignup } from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { signupUser, type NewUserSignupData } from "../api/api";
 import Logo from "../components/Logo";
 import Button from "../components/Button";
 import Input from "../components/Input";
@@ -52,14 +52,25 @@ const RegisterCreate: React.FC = () => {
     setLoading(true);
     setApiError("");
     
-    // In a real app, you would send formData to your backend API here
-    console.log("Submitting:", formData);
+    try {
+      console.log("Submitting:", formData);
+      
+      // Use signupUser (the function) and NewUserSignupData (the type)
+      const status = await signupUser(formData as NewUserSignupData);
 
-    const registered = await newUserSignup(formData)
-
-    // After the API call is successful, redirect to the success screen
-    if(registered === 200) navigate("/signup/success");
-    
+      // Check for successful status (200 or 201)
+      if (status === 200 || status === 201) {
+        navigate("/signup/success");
+      } else {
+        setApiError("Registration failed. Please try again.");
+      }
+    } catch (err: any) {
+      // Capture the error message thrown by the axios catch block in api.ts
+      setApiError(err.message || "Failed to create account. Please check your details.");
+      console.error("Signup error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,14 +88,12 @@ const RegisterCreate: React.FC = () => {
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
-          {/* API Error Message Display */}
           {apiError && (
-            <div className="p-4 text-sm text-red-600 bg-red-50 rounded-2xl text-center font-medium border border-red-100">
+            <div className="p-4 text-sm text-red-600 bg-red-50 rounded-2xl text-center font-medium border border-red-100 animate-in fade-in duration-300">
               {apiError}
             </div>
           )}
 
-          {/* First and Last Name Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="First Name"
@@ -156,7 +165,9 @@ const RegisterCreate: React.FC = () => {
           <Button
             type="submit"
             variant="primary"
-            className={`w-full py-4 rounded-2xl font-bold text-lg mt-6 ${loading ? "opacity-50 pointer-events-none" : ""}`}
+            className={`w-full py-4 rounded-2xl font-bold text-lg mt-6 transition-all ${
+              loading ? "opacity-50 cursor-not-allowed pointer-events-none" : "active:scale-[0.98]"
+            }`}
           >
             {loading ? "Processing..." : "Submit"}
           </Button>
