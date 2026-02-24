@@ -1,67 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { login, logout } from '../store/slices/authSlice';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const location = useLocation();
-  const dispatch = useDispatch();
-  
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("http://localhost:3001/api", {
-          method: "GET",
-          credentials: "include"
-        });
-
-        if (response.ok) {
-          const responseText = await response.text();
-          
-          if (responseText) {
-            const data = JSON.parse(responseText);
-            
-            // --- DATA MAPPING LOGIC START ---
-            // We identify the user object (handling if it's nested under data.user or top-level)
-            const rawUser = data.user || data;
-
-            // Normalize the user object so it matches what Sidebar/Discover expect
-            const normalizedUser = {
-              ...rawUser,
-              firstName: rawUser.firstName || rawUser.first_name || rawUser.name?.split(' ')[0] || "User",
-              lastName: rawUser.lastName || rawUser.last_name || rawUser.name?.split(' ')[1] || ""
-            };
-            // --- DATA MAPPING LOGIC END ---
-
-            // Dispatch to Redux using the normalized data
-            dispatch(login({
-              user: normalizedUser,
-              token: data.token || localStorage.getItem("token") || "",
-              roles: data.roles || rawUser.roles || []
-            }));
-            
-            setIsAuthorized(true);
-          } else {
-            console.warn("Auth check returned 200 OK with no body content.");
-            setIsAuthorized(true);
-          }
-        } else {
-          dispatch(logout());
-          setIsAuthorized(false);
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        setIsAuthorized(false);
-      } finally {
+    const response = async() => {
+      const authResponse = await fetch("http://localhost:3001/api", {
+        method: "GET",
+        credentials: "include"
+      });
+      
+      if (!authResponse.ok) {
+        setAuth(true);
+        setLoading(false);
+      } else {
+        setAuth(false)
         setLoading(false);
       }
-    };
 
-    checkAuth();
-  }, [dispatch]);
+    }
+    response();
+  }, [])
+
 
   // 1. LOADING LOGIC
   if (loading) {
@@ -74,7 +36,7 @@ const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) 
   }
 
   // 2. AUTHENTICATION CHECK 
-  if (!isAuthorized) {
+  if (auth) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
