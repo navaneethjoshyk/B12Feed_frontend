@@ -1,6 +1,10 @@
 import axios from 'axios';
 
 // --- 1. TYPES & INTERFACES ---
+// export interface AuthResponse {
+//     message: string;
+//     sign?: string; // This is the JWT/Auth token
+// }
 
 export interface UserCredentials {
     email: string;
@@ -12,20 +16,8 @@ export interface UserCredentials {
     phone?: string;
 }
 
-
-export interface NewUserSignupData {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    orgName: string;
-    orgAddress: string;
-    phone: string;
-}
-
+// Interface for the Share Food form
 export interface FoodPostData {
-    _id?: string;
-    id?: number | string;
     title: string;
     category: string;
     description: string;
@@ -39,21 +31,26 @@ export interface FoodPostData {
     pickupAddress: string;
     expiryDate: string;
     urgency: string;
-    image?: any; 
-    resource_image?: Array<{
-        image: string[];
-    }>;
-    userId?: {
-        _id: string;
-        firstName: string;
-        orgName: string;
-        address: string;
-    };
-    status?: string;
+    image?: File | null; 
+}
+
+// Claim food status
+interface claimFoodStatus {
+    status: string;
+}
+
+// --- 2. AXIOS INSTANCE ---
+export interface newUserSignup {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orgName: string;
+    orgAddress: string;
+    phone: string;
 }
 
 // --- 2. AXIOS INSTANCE CONFIGURATION ---
-
 const apiClient = axios.create({
     baseURL: 'http://localhost:3001',
     headers: {
@@ -64,90 +61,103 @@ const apiClient = axios.create({
 
 // --- 3. API SERVICE FUNCTIONS ---
 
-export const listResources = async () => {
+export const signUp = async (userData: UserCredentials): Promise<string> => {
     try {
-        const response = await apiClient.get('/api/discover');
-        return response;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to retrieve resources');
-    }
-};
-
-export const getMyPosts = async (): Promise<FoodPostData[]> => {
-    try {
-        const { data } = await apiClient.get<FoodPostData[]>('/api/my-resources');
+        const { data } = await apiClient.post<string>('/signup', userData);
         return data;
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to fetch your posts');
+        const message = error.response?.data?.message || 'Sign up failed';
+        throw new Error(message);
     }
 };
 
-export const detailResource = async (id: string) => {
-    try {
-        const response = await apiClient.get(`/api/detail/${id}`);
-        return response;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to retrieve details');
-    }
-};
-
-export const getPostById = async (id: number | string): Promise<FoodPostData> => {
-    try {
-        const { data } = await apiClient.get<FoodPostData>(`/api/resourcePost/${id}`);
-        return data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to fetch post');
-    }
-};
-
-export const postFood = async (foodData: any): Promise<number> => {
-    try {
-        const { status } = await apiClient.post('/api/resourcePost', foodData);
-        return status;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to post food');
-    }
-};
-
-export const updateFoodPost = async (id: number | string, foodData: any): Promise<number> => {
-    try {
-        const { status } = await apiClient.put(`/api/resourcePost/${id}`, foodData);
-        return status;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to update post');
-    }
-};
-
-// --- 4. AUTHENTICATION FUNCTIONS ---
 
 /**
- * Main Signup function
- * Uses the /users/signup endpoint
+ * Sends food post data to the backend. 
+ * Uses FormData to support image uploads.
  */
-export const signupUser = async (credentials: NewUserSignupData): Promise<number> => {
+export const postFood = async (foodData: FoodPostData): Promise<any> => {
     try {
-        const { status } = await apiClient.post('users/signup', credentials);
+        // const formData = new FormData();
+        // // Append all standard fields
+        // formData.append('title', foodData.title);
+        // formData.append('category', foodData.category);
+        // formData.append('description', foodData.description);
+        // formData.append('quantity', foodData.quantity);
+        // formData.append('unit', foodData.unit);
+        // formData.append('condition', foodData.condition);
+        // formData.append('pickupAddress', foodData.pickupAddress);
+        // formData.append('expiryDate', foodData.expiryDate);
+        // formData.append('urgency', foodData.urgency);
+        // formData.append('pickupWindow', JSON.stringify(foodData.pickupWindow));
+        // console.log(formData)
+        // Append image if it exists
+        // if (foodData.image) {
+        //     formData.append('image', foodData.image);
+        // }
+        console.log(foodData)
+        const { status } = await apiClient.post('/api/resourcePost', foodData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return status;
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Sign up failed');
+        const message = error.response?.data?.message || 'Failed to post food';
+        throw new Error(message);
+    }
+}
+/**
+ * Sends user credentials to create a new account
+ */
+export const newUserSignup = async (credentials: newUserSignup): Promise<number> => {
+    try {
+        const { status } = await apiClient.post<string>('users/signup', credentials);
+        return status;
+    } catch (error) {
+        throw new Error('Sign up failed');
     }
 };
 
+/**
+ * Sends user credentials to authenticate and receive a token
+ * Note: Changed to .post because sending passwords via .get is insecure
+ */
 export const login = async (credentials: UserCredentials): Promise<any> => {
     try {
-        return await apiClient.post('users/auth', credentials);
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Login failed');
-    }
-};
-
-// --- 5. RESOURCE ACTION FUNCTIONS ---
-
-export const claimResource = async (id: string) => {
-    try {
-        const response = await apiClient.post('api/claimResource', { id });
+        const response = await apiClient.post<string>('users/auth', credentials);
         return response;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Failed to claim resource');
+    } catch (error) {
+        throw new Error('Login failed');
     }
 };
+
+export const claimResource = async(id: string) => {
+    try {
+        console.log(id)
+        const response = await apiClient.post<string>('api/claimResource', {id: id}, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        console.log(response)
+        return response;
+    } catch(error) {
+        throw new Error('Failed to claim')
+    }
+}
+
+export const listResources = async() => {
+    try {
+        const response = await apiClient.get('api/discover');
+        return response;
+    } catch(error) {
+        throw new Error('Failed to retrieve')
+    }
+}
+
+export const detailResource = async(id: string) => {
+    try {
+        const response = await apiClient.get(`api/detail/${id}`)
+        return response;
+    } catch(error) {
+        throw new Error('Failed to retrieve');
+    }
+}

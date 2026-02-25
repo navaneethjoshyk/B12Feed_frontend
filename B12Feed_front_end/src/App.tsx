@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import SignIn from './pages/SignIn';
 import ForgotPassword from './pages/ForgotPassword';
 import Discover from './pages/Discover';
-import MyPostings from './pages/MyPostings'; 
+import MyPostings from './pages/MyPostings'; // Import the new page
 import ResourceDetails from './pages/ResourceDetails';
 import CheckEmail from './pages/CheckEmail';
 import RegisterCreate from './pages/RegisterCreate';
@@ -10,10 +10,7 @@ import RegisterJoin from './pages/RegisterJoin';
 import RegisterChoice from './pages/RegisterChoice';
 import Success from './pages/Success';
 import ShareFood from './pages/ShareFood';
-import PrivateRoute from './components/PrivateRoute';
-
-// NEW: Import the MyClaims component
-import MyClaims from './pages/MyClaims'; 
+import PrivateRoute from './components/PrivateRoute'; // Import the guard
 
 function App() {
   return (
@@ -32,42 +29,49 @@ function App() {
         <Route path="/signup/success" element={<Success />} />
 
         {/* --- Protected Routes --- */}
+        {/* These routes now check if the user is logged in before rendering */}
+        
         <Route 
           path="/discover" 
-          element={<PrivateRoute><Discover /></PrivateRoute>} 
-        />
-
-        {/* Updated: This now handles both /my-postings and /my-resources if needed */}
-        <Route 
-          path="/my-postings" 
-          element={<PrivateRoute><MyPostings /></PrivateRoute>} 
-        />
-
-        {/* UPDATED: Swapped placeholder with actual MyClaims component */}
-        <Route 
-          path="/my-claims" 
           element={
             <PrivateRoute>
-              <MyClaims />
+              <Discover />
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
+          path="/my-postings" 
+          element={
+            <PrivateRoute>
+              <MyPostings />
             </PrivateRoute>
           } 
         />
 
         <Route 
           path="/share-food" 
-          element={<PrivateRoute><ShareFood /></PrivateRoute>} 
+          element={
+            <PrivateRoute>
+              <ShareFood />
+            </PrivateRoute>
+          } 
         />
 
         <Route 
           path="/resource/:id" 
-          element={<PrivateRoute><ResourceDetails /></PrivateRoute>} 
+          element={
+            <PrivateRoute>
+              <ResourceDetails />
+            </PrivateRoute>
+          } 
         />
 
-        {/* Fallback */}
+        {/* Fallback to redirect unknown paths to login or discover */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
-export default App; 
+export default App;
